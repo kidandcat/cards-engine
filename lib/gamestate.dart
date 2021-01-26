@@ -1,53 +1,30 @@
-import 'dart:async';
-
-import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'dart:ui';
 import 'deck.dart';
 import 'gamecard.dart';
-import 'painters.dart';
+
+class GlobalState {
+  static Deck topLeft = Deck(
+    name: 'TopLeft',
+    spacingY: 2,
+    spacingX: 2,
+    left: 3,
+    top: 3,
+  );
+  static Deck topRight = Deck(
+    name: 'TopRight',
+    top: 0,
+    left: window.physicalSize.width - GameCard.width - 20,
+  );
+  static Deck center = Deck(
+    name: 'Center',
+    spacingX: 3,
+    spacingY: 3,
+    top: window.physicalSize.height / 2 - GameCard.height / 2,
+    left: window.physicalSize.width / 2 - GameCard.width / 2,
+  );
+}
 
 class GameState extends GetxController {
-  //Dashboard
-
-  GameState() {
-    topLeft.value.append(GameCard(color: Colors.blue, name: 'One'));
-    topLeft.value.append(GameCard(color: Colors.blue, name: 'One'));
-    topLeft.value.append(GameCard(color: Colors.blue, name: 'One'));
-
-    topRight.value.append(GameCard(color: Colors.red, name: 'One'));
-    topRight.value.append(GameCard(color: Colors.red, name: 'One'));
-    topRight.value.append(GameCard(color: Colors.red, name: 'One'));
-    topRight.value.append(GameCard(color: Colors.red, name: 'One'));
-    topRight.value.append(GameCard(color: Colors.red, name: 'One'));
-
-    center.value.append(GameCard(color: Colors.yellow, name: 'One'));
-    center.value.append(GameCard(color: Colors.yellow, name: 'One'));
-    center.value.append(GameCard(color: Colors.yellow, name: 'One'));
-  }
-
-  // ignore: close_sinks
-  var animations = StreamController<GameAnimation>();
-
-  var topLeft = Deck(
-    name: 'TopLeft',
-    cardHeight: 200 * 0.8,
-    cardWidth: 123 * 0.8,
-    painter: PainterTopLeft(),
-  ).obs;
-  var topRight = Deck(
-    name: 'TopRight',
-    cardHeight: 200,
-    cardWidth: 123,
-    spacingX: 10,
-    painter: PainterTopRight(),
-  ).obs;
-  var center = Deck(
-    name: 'Center',
-    cardHeight: 170,
-    cardWidth: 100,
-    spacingX: 105,
-    spacingY: 0,
-    painter: PainterCenter(),
-  ).obs;
+  var cards = <Rx<GameCard>>[].obs;
 }

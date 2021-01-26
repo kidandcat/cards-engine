@@ -1,31 +1,23 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
+import 'config.dart';
 import 'deck.dart';
 import 'gamestate.dart';
 
 class GameCard {
+  static const double width = 123;
+  static const double height = 200;
+
   String name;
   Deck parent;
-  Deck previousParent;
   Color color;
-  Offset position;
-  Offset oldPosition;
-  Animation animation;
+  Key key;
+
+  double top = 0;
+  double left = 0;
+
   GameCard({this.name, this.color, this.parent}) {
-    widget = GameCardWidget(this);
-  }
-
-  GameCardWidget widget;
-
-  reParent(Deck newParent) {
-    oldPosition = position;
-    previousParent = parent;
-    parent = newParent;
-    previousParent.remove(this);
-    parent.append(this);
+    key = UniqueKey();
   }
 
   @override
@@ -34,47 +26,54 @@ class GameCard {
   }
 }
 
-class GameCardWidget extends StatefulWidget {
-  final GameCard card;
+class GameCardWidget extends StatelessWidget {
+  final Rx<GameCard> card;
+  final GameState c = Get.put(GameState());
   GameCardWidget(this.card);
 
   @override
-  _GameCardWidgetState createState() => _GameCardWidgetState();
-}
-
-class _GameCardWidgetState extends State<GameCardWidget> {
-  final GameState c = Get.put(GameState());
-
-  @override
-  Widget build(BuildContext context) => GestureDetector(
-        onTap: () {
-          if (c.topLeft.value.contains(widget.card)) {
-            c.topRight.value.take(widget.card);
-          } else if (c.topRight.value.contains(widget.card)) {
-            c.topLeft.value.take(widget.card);
-          } else if (c.center.value.contains(widget.card)) {
-            c.topLeft.value.take(widget.card);
-          }
-        },
-        child: Container(
-          width: widget.card.parent.cardWidth,
-          height: widget.card.parent.cardHeight,
-          decoration: BoxDecoration(
-            color: widget.card.color,
-            borderRadius: BorderRadius.all(Radius.circular(5)),
-            border: Border.all(color: Colors.green),
-          ),
-          child: Center(
-            child: Text('Card'),
+  Widget build(BuildContext context) => Obx(
+        () => AnimatedPositioned(
+          key: card.value.key,
+          curve: Curves.easeInOut,
+          duration: Config.animationDuration,
+          top: card.value.top,
+          left: card.value.left,
+          child: GestureDetector(
+            onTap: () {
+              if (card.value.parent == GlobalState.topLeft) {
+                GlobalState.topRight.moveOnTop(card);
+              } else if (card.value.parent == GlobalState.topRight) {
+                GlobalState.center.moveOnTop(card);
+              } else if (card.value.parent == GlobalState.center) {
+                GlobalState.topLeft.moveOnTop(card);
+              }
+            },
+            onDoubleTap: () {
+              if (card.value.parent == GlobalState.topLeft) {
+                GlobalState.topRight.moveOnBottom(card);
+              } else if (card.value.parent == GlobalState.topRight) {
+                GlobalState.center.moveOnBottom(card);
+              } else if (card.value.parent == GlobalState.center) {
+                GlobalState.topLeft.moveOnBottom(card);
+              }
+            },
+            child: Container(
+              width: GameCard.width,
+              height: GameCard.height,
+              decoration: BoxDecoration(
+                color: card.value.color,
+                borderRadius: BorderRadius.all(Radius.circular(5)),
+                border: Border.all(color: Colors.green),
+              ),
+              child: Center(
+                child: Text(
+                  "${card.value.name}",
+                  style: TextStyle(color: Colors.deepPurple[900]),
+                ),
+              ),
+            ),
           ),
         ),
       );
-}
-
-class GameAnimation {
-  GameCard target;
-  Duration duration;
-  Function(AnimationStatus) onDone;
-  AnimationController controller;
-  GameAnimation({this.target, this.duration, this.onDone});
 }
