@@ -55,7 +55,13 @@ class GameEngine {
     topLeft.onTap = (card) {
       topRight.moveOnBottom(card);
     };
+    topLeft.onDragDown = (card) {
+      hand.moveOnBottom(card);
+    };
     topRight.onTap = (card) {
+      topLeft.moveOnBottom(card);
+    };
+    topRight.onDragDown = (card) {
       hand.moveOnBottom(card);
     };
     hand.onDragUp = (card) {
