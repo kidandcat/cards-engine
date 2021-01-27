@@ -23,11 +23,11 @@ class Deck {
     this.name,
     this.spacingX: 3,
     this.spacingY: 3,
-    this.left,
-    this.top,
+    this.left: 0,
+    this.top: 0,
   });
 
-  setNewCardPosition(Rx<GameCard> card) {
+  refresh() {
     var myCards = c.cards.where((card) => card.value.parent == this);
     var index = 0;
     for (var card in myCards) {
@@ -41,12 +41,15 @@ class Deck {
 
   void move(Rx<GameCard> card) async {
     await Future.delayed(Duration(milliseconds: 50));
+    Deck oldParent;
     card.update((val) {
       if (val.parent != null) val.parent.numberOfCards--;
+      oldParent = val.parent;
       val.parent = this;
     });
     numberOfCards++;
-    setNewCardPosition(card);
+    refresh();
+    if (oldParent != null) oldParent.refresh();
   }
 
   void moveOnTop(Rx<GameCard> card) {

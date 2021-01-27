@@ -12,11 +12,12 @@ class GameCard {
   Deck parent;
   Color color;
   Key key;
+  Function(Rx<GameCard>) onTap;
 
   double top = 0;
   double left = 0;
 
-  GameCard({this.name, this.color, this.parent}) {
+  GameCard({this.name, this.color, this.parent, this.onTap}) {
     key = UniqueKey();
   }
 
@@ -40,24 +41,7 @@ class GameCardWidget extends StatelessWidget {
           top: card.value.top,
           left: card.value.left,
           child: GestureDetector(
-            onTap: () {
-              if (card.value.parent == GlobalState.topLeft) {
-                GlobalState.topRight.moveOnTop(card);
-              } else if (card.value.parent == GlobalState.topRight) {
-                GlobalState.center.moveOnTop(card);
-              } else if (card.value.parent == GlobalState.center) {
-                GlobalState.topLeft.moveOnTop(card);
-              }
-            },
-            onDoubleTap: () {
-              if (card.value.parent == GlobalState.topLeft) {
-                GlobalState.topRight.moveOnBottom(card);
-              } else if (card.value.parent == GlobalState.topRight) {
-                GlobalState.center.moveOnBottom(card);
-              } else if (card.value.parent == GlobalState.center) {
-                GlobalState.topLeft.moveOnBottom(card);
-              }
-            },
+            onTap: () => card.value.onTap(card),
             child: Container(
               width: GameCard.width,
               height: GameCard.height,
