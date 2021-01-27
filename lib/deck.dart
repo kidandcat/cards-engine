@@ -1,20 +1,27 @@
+import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'gamecard.dart';
 import 'gamestate.dart';
-
-enum CardOrigin { TopLeft, TopRight, BottomLeft, BottomRight }
 
 class Deck {
   final GameState c = Get.put(GameState());
 
   String name;
+
+  Function refreshDashboard;
+
   // position
   double top;
   double left;
   bool centerOrigin = false;
 
   // card config
-  CardOrigin origin;
+  void Function(Rx<GameCard>) onTap = (_) {};
+  void Function(Rx<GameCard>) onLongPress = (_) {};
+  void Function(Rx<GameCard>) onDragUp = (_) {};
+  void Function(Rx<GameCard>) onDragDown = (_) {};
+  void Function(Rx<GameCard>) onDragRight = (_) {};
+  void Function(Rx<GameCard>) onDragLeft = (_) {};
   double spacingX;
   double spacingY;
   int numberOfCards = 0;
@@ -25,9 +32,10 @@ class Deck {
     this.spacingY: 3,
     this.left: 0,
     this.top: 0,
+    this.refreshDashboard,
   });
 
-  refresh() {
+  void refresh() async {
     var myCards = c.cards.where((card) => card.value.parent == this);
     var index = 0;
     for (var card in myCards) {
@@ -39,35 +47,42 @@ class Deck {
     }
   }
 
-  void move(Rx<GameCard> card) async {
-    await Future.delayed(Duration(milliseconds: 50));
+  void move(Rx<GameCard> card, int index) async {
+    if (card.value.parent == this) throw 'Card already owned by Deck';
     Deck oldParent;
     card.update((val) {
-      if (val.parent != null) val.parent.numberOfCards--;
+      if (val.parent != null) {
+        val.parent.numberOfCards--;
+        val.isMoving = true;
+        val.color = Colors.red;
+      }
       oldParent = val.parent;
       val.parent = this;
+      val.top = top + spacingY * index;
+      val.left = left + spacingX * index;
     });
     numberOfCards++;
     refresh();
     if (oldParent != null) oldParent.refresh();
+    refreshDashboard();
   }
 
   void moveOnTop(Rx<GameCard> card) {
     c.cards.remove(card);
     c.cards.add(card);
     c.cards.refresh();
-    move(card);
+    move(card, numberOfCards);
   }
 
   void moveOnBottom(Rx<GameCard> card) {
     c.cards.remove(card);
     c.cards.insert(0, card);
     c.cards.refresh();
-    move(card);
+    move(card, 0);
   }
 
   void newCard(Rx<GameCard> card) {
     c.cards.add(card);
-    move(card);
+    move(card, numberOfCards);
   }
 }

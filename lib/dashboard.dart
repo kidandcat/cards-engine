@@ -16,17 +16,24 @@ class _DashboardState extends State<Dashboard> {
   @override
   void initState() {
     super.initState();
-    WidgetsBinding.instance
-        .addPostFrameCallback((_) => ge = GameEngine(context));
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      // Create GameEngine when context be ready to get Size
+      ge = GameEngine(context);
+      // Refresh Dashboard when GameEngine tell us to do it
+      ge.dashboardRefresher.stream.listen((event) {
+        setState(() {});
+      });
+    });
   }
 
   @override
   Widget build(BuildContext context) {
+    // WidgetsBinding.instance.addPostFrameCallback((_) {
+    //   print('called after BUILD?');
+    // });
     return Container(
-      child: Obx(
-        () => Stack(
-          children: c.cards.map((card) => GameCardWidget(card)).toList(),
-        ),
+      child: Stack(
+        children: c.cards.map((card) => GameCardWidget(card)).toList(),
       ),
     );
   }

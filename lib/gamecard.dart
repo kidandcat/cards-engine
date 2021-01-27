@@ -12,12 +12,13 @@ class GameCard {
   Deck parent;
   Color color;
   Key key;
-  Function(Rx<GameCard>) onTap;
+
+  bool isMoving = false;
 
   double top = 0;
   double left = 0;
 
-  GameCard({this.name, this.color, this.parent, this.onTap}) {
+  GameCard({this.name, this.color, this.parent}) {
     key = UniqueKey();
   }
 
@@ -28,8 +29,8 @@ class GameCard {
 }
 
 class GameCardWidget extends StatelessWidget {
-  final Rx<GameCard> card;
   final GameState c = Get.put(GameState());
+  final Rx<GameCard> card;
   GameCardWidget(this.card);
 
   @override
@@ -40,15 +41,40 @@ class GameCardWidget extends StatelessWidget {
           duration: Config.animationDuration,
           top: card.value.top,
           left: card.value.left,
+          onEnd: () {
+            card.update((val) {
+              val.isMoving = false;
+              val.color = Colors.blue;
+            });
+          },
           child: GestureDetector(
-            onTap: () => card.value.onTap(card),
+            onTap: () {
+              if (!card.value.isMoving) card.value.parent.onTap(card);
+            },
+            onLongPress: () {
+              card.value.parent.onLongPress(card);
+            },
+            onVerticalDragEnd: (details) {
+              if (details.primaryVelocity < 0) {
+                card.value.parent.onDragUp(card);
+              } else {
+                card.value.parent.onDragDown(card);
+              }
+            },
+            onHorizontalDragEnd: (details) {
+              if (details.primaryVelocity < 0) {
+                card.value.parent.onDragLeft(card);
+              } else {
+                card.value.parent.onDragRight(card);
+              }
+            },
             child: Container(
               width: GameCard.width,
               height: GameCard.height,
               decoration: BoxDecoration(
                 color: card.value.color,
                 borderRadius: BorderRadius.all(Radius.circular(5)),
-                border: Border.all(color: Colors.green),
+                border: Border.all(color: Colors.green, width: 3),
               ),
               child: Center(
                 child: Text(
