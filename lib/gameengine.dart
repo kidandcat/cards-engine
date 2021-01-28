@@ -59,7 +59,9 @@ class GameEngine {
       hand.moveOnBottom(card);
     };
     topRight.onTap = (card) {
-      topLeft.moveOnBottom(card);
+      print('tapped card ${card.value.name}');
+      card.value.flip();
+      //topLeft.moveOnBottom(card);
     };
     topRight.onDragDown = (card) {
       hand.moveOnBottom(card);

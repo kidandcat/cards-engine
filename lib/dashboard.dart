@@ -33,7 +33,9 @@ class _DashboardState extends State<Dashboard> {
     // });
     return Container(
       child: Stack(
-        children: c.cards.map((card) => GameCardWidget(card)).toList(),
+        children: c.cards
+            .map((card) => GameCardWidget(card, card.value.key))
+            .toList(),
       ),
     );
   }
