@@ -2005,7 +2005,7 @@ class ApiSession {
   final bool created;
   @JsonKey(name: 'token')
   final String token;
-  @JsonKey(name: 'refreshToken')
+  @JsonKey(name: 'refresh_token')
   final String refreshToken;
   static const fromJsonFactory = _$ApiSessionFromJson;
   static const toJsonFactory = _$ApiSessionToJson;

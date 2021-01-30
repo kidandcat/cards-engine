@@ -691,7 +691,7 @@ ApiSession _$ApiSessionFromJson(Map<String, dynamic> json) {
   return ApiSession(
     created: json['created'] as bool,
     token: json['token'] as String,
-    refreshToken: json['refreshToken'] as String,
+    refreshToken: json['refresh_token'] as String,
   );
 }
 
@@ -699,7 +699,7 @@ Map<String, dynamic> _$ApiSessionToJson(ApiSession instance) =>
     <String, dynamic>{
       'created': instance.created,
       'token': instance.token,
-      'refreshToken': instance.refreshToken,
+      'refresh_token': instance.refreshToken,
     };
 
 ApiSessionRefreshRequest _$ApiSessionRefreshRequestFromJson(

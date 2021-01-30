@@ -1,6 +1,4 @@
-import 'package:cartas/lobby.dart';
 import 'package:cartas/networking.dart';
-import 'package:get/get.dart';
 import 'package:flutter/material.dart';
 
 class Login extends StatefulWidget {
@@ -12,7 +10,18 @@ class _LoginState extends State<Login> {
   Networking nk = Networking();
   String email;
   String password;
-  String error;
+  String error = '';
+
+  void onLoginPress() async {
+    try {
+      await nk.login(email, password);
+      // redirection to lobby is made in networking.dart, on sessionLoaded()
+    } on String catch (e) {
+      setState(() {
+        error = e;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -38,25 +47,18 @@ class _LoginState extends State<Login> {
                         hintText: 'Password',
                       ),
                     ),
-                    if (error != null)
-                      Text(
+                    Padding(
+                      padding: const EdgeInsets.only(top: 12),
+                      child: Text(
                         error,
                         style: TextStyle(color: Colors.red),
                       ),
+                    ),
                     Padding(
                       padding: const EdgeInsets.all(12),
                       child: TextButton(
-                        child: Text('Log-in'),
-                        onPressed: () async {
-                          try {
-                            await nk.login(email, password);
-                            print('Logged in');
-                            Get.to(Lobby());
-                          } on String catch (e) {
-                            print('Error $e');
-                            error = e;
-                          }
-                        },
+                        child: Text('Log in'),
+                        onPressed: onLoginPress,
                       ),
                     )
                   ],

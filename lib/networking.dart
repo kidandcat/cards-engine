@@ -1,7 +1,10 @@
 import 'dart:convert';
-
+import 'package:get/get.dart' as GetX;
 import 'package:cartas/swagger/apigrpc.swagger.dart';
 import 'package:chopper/chopper.dart';
+import 'package:get_storage/get_storage.dart';
+
+import 'lobby.dart';
 
 class Networking {
   // Singleton pattern
@@ -11,8 +14,27 @@ class Networking {
   }
   Networking._internal() {
     nakama = Apigrpc.create(getClient());
+    checkExistingSession();
   }
   // Singleton end
+
+  Apigrpc nakama;
+  ApiSession session;
+  ApiAccount userdata;
+
+  Future<void> checkExistingSession() async {
+    var box = GetStorage();
+    var token = box.read<String>('refreshToken');
+    if (token != null) {
+      var response = await nakama.nakamaSessionRefresh(
+        body: ApiSessionRefreshRequest(token: token),
+      );
+      if (response.isSuccessful) {
+        session = response.body;
+        await sessionLoaded();
+      }
+    }
+  }
 
   ChopperClient getClient() {
     if (session != null) {
@@ -40,10 +62,6 @@ class Networking {
     }
   }
 
-  Apigrpc nakama;
-  ApiSession session;
-  ApiAccount userdata;
-
   Future<void> login(String email, String password) async {
     var response = await nakama.nakamaAuthenticateEmail(
       body: ApiAccountEmail(
@@ -54,11 +72,23 @@ class Networking {
 
     if (response.isSuccessful) {
       session = response.body;
-      nakama.client = getClient(); // Refresh client to use session
-      await getUserData();
+      await sessionLoaded();
     } else {
-      throw response.error;
+      var j = json.decode(response.error);
+      throw j['message'];
     }
+  }
+
+  Future<void> sessionLoaded() async {
+    nakama.client = getClient(); // Refresh client to use session
+    await getUserData();
+    await saveRefreshToken(session.refreshToken);
+    GetX.Get.off(Lobby());
+  }
+
+  Future<void> saveRefreshToken(String token) async {
+    var box = GetStorage();
+    await box.write('refreshToken', session.refreshToken);
   }
 
   Future<void> getUserData() async {
