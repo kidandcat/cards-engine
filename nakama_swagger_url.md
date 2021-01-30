@@ -1,0 +1,1 @@
+https://github.com/heroiclabs/nakama/blob/master/apigrpc/apigrpc.swagger.json

@@ -1,6 +1,5 @@
 import 'dart:async';
 
-import 'package:cartas/config.dart';
 import 'package:cartas/gamehand.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -33,16 +32,16 @@ class GameEngine {
   GameEngine(BuildContext context) {
     topLeft = Deck(
       name: 'TopLeft',
-      spacingY: 2,
-      spacingX: 2,
-      left: Config.dashboardMargin,
-      top: Config.dashboardMargin,
+      spacingY: 0.2,
+      spacingX: 0.2,
+      left: 3,
+      top: 3,
       refreshDashboard: refreshDashboard,
     );
     topRight = Deck(
       name: 'TopRight',
-      top: Config.dashboardMargin,
-      left: context.size.width - GameCard.width - Config.dashboardMargin,
+      top: 3,
+      left: context.size.width - GameCard.width - 3,
       refreshDashboard: refreshDashboard,
     );
     hand = GameHand(
@@ -61,7 +60,6 @@ class GameEngine {
     topRight.onTap = (card) {
       print('tapped card ${card.value.name}');
       card.value.flip();
-      //topLeft.moveOnBottom(card);
     };
     topRight.onDragDown = (card) {
       hand.moveOnBottom(card);
@@ -71,7 +69,7 @@ class GameEngine {
       topLeft.moveOnBottom(card);
     };
 
-    for (var i = 0; i < 10; i++) {
+    for (var i = 0; i < 100; i++) {
       topLeft.newCard(GameCard(
         color: Colors.blue,
         name: '$i',
