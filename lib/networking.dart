@@ -1,4 +1,7 @@
+import 'dart:convert';
+
 import 'package:cartas/swagger/apigrpc.swagger.dart';
+import 'package:chopper/chopper.dart';
 
 class Networking {
   // Singleton pattern
@@ -6,25 +9,64 @@ class Networking {
   factory Networking() {
     return _singleton;
   }
-  Networking._internal();
+  Networking._internal() {
+    nakama = Apigrpc.create(getClient());
+  }
   // Singleton end
 
-  Apigrpc nakama = Apigrpc.create();
+  ChopperClient getClient() {
+    if (session != null) {
+      return ChopperClient(
+        converter: JsonSerializableConverter(),
+        baseUrl: 'https://world.galax.be',
+        interceptors: [
+          (Request request) async => request.copyWith(
+                headers: {'Authorization': 'Bearer ${session.token}'},
+              ),
+        ],
+      );
+    } else {
+      var bytes = utf8.encode('defaultkey:');
+      var base64Str = base64.encode(bytes);
+      return ChopperClient(
+        converter: JsonSerializableConverter(),
+        baseUrl: 'https://world.galax.be',
+        interceptors: [
+          (Request request) async => request.copyWith(
+                headers: {'Authorization': 'Basic $base64Str'},
+              ),
+        ],
+      );
+    }
+  }
 
-  void login() async {
+  Apigrpc nakama;
+  ApiSession session;
+  ApiAccount userdata;
+
+  Future<void> login(String email, String password) async {
     var response = await nakama.nakamaAuthenticateEmail(
       body: ApiAccountEmail(
-        email: 'jairo@email.com',
-        password: '12341234',
+        email: email,
+        password: password,
       ),
     );
-    print('Got response $response');
 
     if (response.isSuccessful) {
-      var session = response.body;
-      print('Got session $session');
+      session = response.body;
+      nakama.client = getClient(); // Refresh client to use session
+      await getUserData();
     } else {
-      print('Got error ${response.error}');
+      throw response.error;
+    }
+  }
+
+  Future<void> getUserData() async {
+    var response = await nakama.nakamaGetAccount();
+    if (response.isSuccessful) {
+      userdata = response.body;
+    } else {
+      throw response.error;
     }
   }
 }
