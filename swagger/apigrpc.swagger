@@ -3597,18 +3597,18 @@
           },
           "description": "A list of leaderboard records."
         },
-        "ownerRecords": {
+        "owner_records": {
           "type": "array",
           "items": {
             "$ref": "#/definitions/apiLeaderboardRecord"
           },
           "description": "A batched set of leaderboard records belonging to specified owners."
         },
-        "nextCursor": {
+        "next_cursor": {
           "type": "string",
           "description": "The cursor to send when retrieving the next page, if any."
         },
-        "prevCursor": {
+        "prev_cursor": {
           "type": "string",
           "description": "The cursor to send when retrieving the previous page, if any."
         }
@@ -3618,7 +3618,7 @@
     "apiMatch": {
       "type": "object",
       "properties": {
-        "matchId": {
+        "match_id": {
           "type": "string",
           "description": "The ID of the match, can be used to join."
         },
@@ -3635,12 +3635,12 @@
           "format": "int32",
           "description": "Current number of users in the match."
         },
-        "tickRate": {
+        "tick_rate": {
           "type": "integer",
           "format": "int32",
           "title": "Tick Rate"
         },
-        "handlerName": {
+        "handler_name": {
           "type": "string",
           "title": "Handler name"
         }

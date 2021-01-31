@@ -1,10 +1,18 @@
 targets:
   $default:
     sources:
-      - swagger/**
+        - lib/**
+        - swagger/** 
     builders:
+      dart_json_mapper:
+          generate_for:
+          # here should be listed entry point files having 'void main()' function
+            - lib/main.dart
       swagger_dart_code_generator:
         options:
           with_converter: true
           input_folder: "swagger/"
           output_folder: "lib/swagger/"
+      reflectable:
+        generate_for:
+          - no/files

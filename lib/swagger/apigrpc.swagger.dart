@@ -1726,11 +1726,11 @@ class ApiLeaderboardRecordList {
 
   @JsonKey(name: 'records', defaultValue: <ApiLeaderboardRecord>[])
   final List<ApiLeaderboardRecord> records;
-  @JsonKey(name: 'ownerRecords', defaultValue: <ApiLeaderboardRecord>[])
+  @JsonKey(name: 'owner_records', defaultValue: <ApiLeaderboardRecord>[])
   final List<ApiLeaderboardRecord> ownerRecords;
-  @JsonKey(name: 'nextCursor')
+  @JsonKey(name: 'next_cursor')
   final String nextCursor;
-  @JsonKey(name: 'prevCursor')
+  @JsonKey(name: 'prev_cursor')
   final String prevCursor;
   static const fromJsonFactory = _$ApiLeaderboardRecordListFromJson;
   static const toJsonFactory = _$ApiLeaderboardRecordListToJson;
@@ -1765,7 +1765,7 @@ class ApiMatch {
   factory ApiMatch.fromJson(Map<String, dynamic> json) =>
       _$ApiMatchFromJson(json);
 
-  @JsonKey(name: 'matchId')
+  @JsonKey(name: 'match_id')
   final String matchId;
   @JsonKey(name: 'authoritative')
   final bool authoritative;
@@ -1773,9 +1773,9 @@ class ApiMatch {
   final String label;
   @JsonKey(name: 'size')
   final int size;
-  @JsonKey(name: 'tickRate')
+  @JsonKey(name: 'tick_rate')
   final int tickRate;
-  @JsonKey(name: 'handlerName')
+  @JsonKey(name: 'handler_name')
   final String handlerName;
   static const fromJsonFactory = _$ApiMatchFromJson;
   static const toJsonFactory = _$ApiMatchToJson;

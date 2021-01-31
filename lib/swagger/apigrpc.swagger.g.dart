@@ -538,14 +538,14 @@ ApiLeaderboardRecordList _$ApiLeaderboardRecordListFromJson(
                 : ApiLeaderboardRecord.fromJson(e as Map<String, dynamic>))
             ?.toList() ??
         [],
-    ownerRecords: (json['ownerRecords'] as List)
+    ownerRecords: (json['owner_records'] as List)
             ?.map((e) => e == null
                 ? null
                 : ApiLeaderboardRecord.fromJson(e as Map<String, dynamic>))
             ?.toList() ??
         [],
-    nextCursor: json['nextCursor'] as String,
-    prevCursor: json['prevCursor'] as String,
+    nextCursor: json['next_cursor'] as String,
+    prevCursor: json['prev_cursor'] as String,
   );
 }
 
@@ -553,29 +553,29 @@ Map<String, dynamic> _$ApiLeaderboardRecordListToJson(
         ApiLeaderboardRecordList instance) =>
     <String, dynamic>{
       'records': instance.records?.map((e) => e?.toJson())?.toList(),
-      'ownerRecords': instance.ownerRecords?.map((e) => e?.toJson())?.toList(),
-      'nextCursor': instance.nextCursor,
-      'prevCursor': instance.prevCursor,
+      'owner_records': instance.ownerRecords?.map((e) => e?.toJson())?.toList(),
+      'next_cursor': instance.nextCursor,
+      'prev_cursor': instance.prevCursor,
     };
 
 ApiMatch _$ApiMatchFromJson(Map<String, dynamic> json) {
   return ApiMatch(
-    matchId: json['matchId'] as String,
+    matchId: json['match_id'] as String,
     authoritative: json['authoritative'] as bool,
     label: json['label'] as String,
     size: json['size'] as int,
-    tickRate: json['tickRate'] as int,
-    handlerName: json['handlerName'] as String,
+    tickRate: json['tick_rate'] as int,
+    handlerName: json['handler_name'] as String,
   );
 }
 
 Map<String, dynamic> _$ApiMatchToJson(ApiMatch instance) => <String, dynamic>{
-      'matchId': instance.matchId,
+      'match_id': instance.matchId,
       'authoritative': instance.authoritative,
       'label': instance.label,
       'size': instance.size,
-      'tickRate': instance.tickRate,
-      'handlerName': instance.handlerName,
+      'tick_rate': instance.tickRate,
+      'handler_name': instance.handlerName,
     };
 
 ApiMatchList _$ApiMatchListFromJson(Map<String, dynamic> json) {

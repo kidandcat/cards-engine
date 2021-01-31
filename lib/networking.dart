@@ -3,8 +3,13 @@ import 'package:get/get.dart' as GetX;
 import 'package:cartas/swagger/apigrpc.swagger.dart';
 import 'package:chopper/chopper.dart';
 import 'package:get_storage/get_storage.dart';
-
+import 'package:web_socket_channel/io.dart';
+import 'package:dart_json_mapper/dart_json_mapper.dart'
+    show JsonMapper, jsonSerializable, JsonProperty;
+import 'package:web_socket_channel/web_socket_channel.dart';
+import 'package:web_socket_channel/status.dart' as status;
 import 'lobby.dart';
+import 'socket.dart';
 
 class Networking {
   // Singleton pattern
@@ -21,6 +26,7 @@ class Networking {
   Apigrpc nakama;
   ApiSession session;
   ApiAccount userdata;
+  Socket socket;
 
   Future<void> checkExistingSession() async {
     var box = GetStorage();
@@ -79,11 +85,33 @@ class Networking {
     }
   }
 
+  Future<ApiMatchList> listMatches() async {
+    var response = await nakama.nakamaListMatches(limit: 50);
+    if (response.isSuccessful) {
+      return response.body;
+    } else {
+      throw response.error;
+    }
+  }
+
   Future<void> sessionLoaded() async {
     nakama.client = getClient(); // Refresh client to use session
     await getUserData();
     await saveRefreshToken(session.refreshToken);
+    connectSocket();
     GetX.Get.off(Lobby());
+  }
+
+  void connectSocket() {
+    socket = Socket('wss://world.galax.be/ws?token=${session.token}');
+  }
+
+  void joinMatch(String matchId) {
+    assert(matchId != null);
+    var jm = JoinMatch();
+    jm.match_id = matchId;
+    // jm.token = session.token;
+    socket.send(jm);
   }
 
   Future<void> saveRefreshToken(String token) async {

@@ -24,6 +24,8 @@ dependencies:
   chopper: ^3.0.3
   get:
   get_storage:
+  web_socket_channel:
+  dart_json_mapper:
   flutter:
     sdk: flutter
 
