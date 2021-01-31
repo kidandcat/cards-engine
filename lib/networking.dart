@@ -85,6 +85,20 @@ class Networking {
     }
   }
 
+  Future<void> createMatch(String name) async {
+    var cm = CreateMatch(name: name, numPlayers: 4, openGame: true);
+    var response = await nakama.nakamaRpcFunc(
+      id: 'create_match',
+      body: JsonMapper.serialize(cm),
+    );
+    if (!response.isSuccessful) {
+      print('error creating matches');
+      var j = json.decode(response.error);
+      throw j['message'];
+    }
+    print('match created');
+  }
+
   Future<ApiMatchList> listMatches() async {
     var response = await nakama.nakamaListMatches(limit: 50);
     if (response.isSuccessful) {

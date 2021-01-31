@@ -13,7 +13,7 @@ void main() async {
       home: Login(),
       theme: ThemeData(
         primaryColor: Color(0xFF1b998b),
-        accentColor: Colors.amber,
+        accentColor: Color(0xFF1b998b),
         hintColor: Color(0xFFc8c8c8),
         textTheme: Typography.whiteMountainView,
         textButtonTheme: TextButtonThemeData(
@@ -28,7 +28,7 @@ void main() async {
             ),
           ),
         ),
-        focusColor: Colors.amber,
+        focusColor: Color(0xFF1b998b),
         scaffoldBackgroundColor: Color(0xFF1a3a3a),
       ),
     ),
