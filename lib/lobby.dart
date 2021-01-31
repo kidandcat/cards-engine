@@ -1,3 +1,4 @@
+import 'package:cartas/room.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -92,9 +93,12 @@ class _LobbyState extends State<Lobby> {
                             onPressed: () {
                               try {
                                 nk.joinMatch(matches[index].matchId);
-                                refreshMatches();
-                              } catch (e) {
-                                Get.defaultDialog(title: e);
+                                nk.socketMatch.stream.listen((event) {
+                                  Get.off(GameRoom(event));
+                                });
+                              } on StateError catch (e) {
+                                print(e);
+                                Get.defaultDialog(title: e.message);
                               }
                             },
                           )

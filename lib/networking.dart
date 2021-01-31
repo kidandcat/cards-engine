@@ -1,13 +1,9 @@
+import 'dart:async';
 import 'dart:convert';
 import 'package:get/get.dart' as GetX;
 import 'package:cartas/swagger/apigrpc.swagger.dart';
 import 'package:chopper/chopper.dart';
 import 'package:get_storage/get_storage.dart';
-import 'package:web_socket_channel/io.dart';
-import 'package:dart_json_mapper/dart_json_mapper.dart'
-    show JsonMapper, jsonSerializable, JsonProperty;
-import 'package:web_socket_channel/web_socket_channel.dart';
-import 'package:web_socket_channel/status.dart' as status;
 import 'lobby.dart';
 import 'socket.dart';
 
@@ -19,7 +15,7 @@ class Networking {
   }
   Networking._internal() {
     nakama = Apigrpc.create(getClient());
-    checkExistingSession();
+    refreshSession();
   }
   // Singleton end
 
@@ -28,7 +24,7 @@ class Networking {
   ApiAccount userdata;
   Socket socket;
 
-  Future<void> checkExistingSession() async {
+  Future<void> refreshSession() async {
     var box = GetStorage();
     var token = box.read<String>('refreshToken');
     if (token != null) {
@@ -38,6 +34,8 @@ class Networking {
       if (response.isSuccessful) {
         session = response.body;
         await sessionLoaded();
+      } else {
+        print('Session not refreshed: ${response.error}');
       }
     }
   }
@@ -89,7 +87,7 @@ class Networking {
     var cm = CreateMatch(name: name, numPlayers: 4, openGame: true);
     var response = await nakama.nakamaRpcFunc(
       id: 'create_match',
-      body: JsonMapper.serialize(cm),
+      body: cm.toJson(),
     );
     if (!response.isSuccessful) {
       print('error creating matches');
@@ -114,10 +112,16 @@ class Networking {
     await saveRefreshToken(session.refreshToken);
     connectSocket();
     GetX.Get.off(Lobby());
+    // Refresh session when token expires (30s)
+    Timer(Duration(seconds: 30), () {
+      print('Token refreshed');
+      refreshSession();
+    });
   }
 
   void connectSocket() {
-    socket = Socket('wss://world.galax.be/ws?token=${session.token}');
+    socket = Socket(
+        'wss://world.galax.be/ws?token=${session.token}', onSocketMessage);
   }
 
   void joinMatch(String matchId) {
@@ -139,6 +143,21 @@ class Networking {
       userdata = response.body;
     } else {
       throw response.error;
+    }
+  }
+
+  StreamController<MatchPresenceEvent> socketMatchPresence = StreamController();
+  StreamController<ApiMatch> socketMatch = StreamController();
+
+  void onSocketMessage(dynamic msg) {
+    Map<String, dynamic> map = json.decode(msg);
+    if (map.containsKey('match')) {
+      socketMatch.add(ApiMatch.fromJson(map));
+    } else if (map.containsKey('match_presence_event')) {
+      socketMatchPresence
+          .add(MatchPresenceEvent.fromMap(map['match_presence_event']));
+    } else {
+      assert(false, 'Message not implemented: $map');
     }
   }
 }

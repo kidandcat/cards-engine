@@ -2,10 +2,8 @@ import 'package:cartas/login.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:get_storage/get_storage.dart';
-import 'main.mapper.g.dart' show initializeJsonMapper;
 
 void main() async {
-  initializeJsonMapper();
   var res = await GetStorage.init();
   print('GetStorage initialized: $res');
   runApp(

@@ -1,3 +1,5 @@
+import 'dart:convert';
+
 import 'package:dart_json_mapper/dart_json_mapper.dart';
 import 'package:web_socket_channel/io.dart';
 
@@ -5,25 +7,16 @@ import 'swagger/apigrpc.swagger.dart';
 
 class Socket {
   IOWebSocketChannel channel;
-  Socket(String uri) {
+  Socket(String uri, Function(dynamic) onMessage) {
     channel = IOWebSocketChannel.connect(Uri.parse(uri));
 
-    channel.stream.listen((message) {
-      print('Got message $message');
-    });
+    channel.stream.listen(onMessage);
   }
 
-  void send(dynamic data) {
+  void send(Serializable data) {
     assert(data != null);
     Map<String, dynamic> template = {'cid': '1'};
-    _send(
-      JsonMapper.serialize(
-        data,
-        SerializationOptions(
-          template: template,
-        ),
-      ),
-    );
+    _send(data.toJson());
   }
 
   void _send(String data) {
@@ -32,8 +25,7 @@ class Socket {
   }
 }
 
-@jsonSerializable
-class Presence {
+class Presence implements Serializable {
   String user_id;
   String session_id;
   String username;
@@ -44,10 +36,35 @@ class Presence {
     this.username,
     this.node,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'user_id': user_id,
+      'session_id': session_id,
+      'username': username,
+      'node': node,
+    };
+  }
+
+  factory Presence.fromMap(Map<String, dynamic> map) {
+    if (map == null) return null;
+
+    return Presence(
+      user_id: map['user_id'],
+      session_id: map['session_id'],
+      username: map['username'],
+      node: map['node'],
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory Presence.fromJson(String source) =>
+      Presence.fromMap(json.decode(source));
 }
 
 /// A response fron a channel join operation.
-@jsonSerializable
+
 class Channel {
   String id;
   List<Presence> presences;
@@ -60,7 +77,7 @@ class Channel {
 }
 
 /// Join a realtime chat channel.
-@jsonSerializable
+
 class ChannelJoin {
   String target;
   int type;
@@ -75,7 +92,7 @@ class ChannelJoin {
 }
 
 /// Leave a realtime chat channel.
-@jsonSerializable
+
 class ChannelLeave {
   String channel_id;
   ChannelLeave({
@@ -84,7 +101,7 @@ class ChannelLeave {
 }
 
 /// An incoming message on a realtime chat channel.
-@jsonSerializable
+
 class ChannelMessage {
   String channel_id;
   String message_id;
@@ -117,7 +134,7 @@ class ChannelMessage {
 }
 
 /// An acknowledgement received in response to sending a message on a chat channel.
-@jsonSerializable
+
 class ChannelMessageAck {
   String channel_id;
   String message_id;
@@ -138,7 +155,6 @@ class ChannelMessageAck {
 }
 
 /// Send a message to a realtime chat channel.
-@jsonSerializable
 class ChannelMessageSend {
   String channel_id;
   dynamic content;
@@ -149,7 +165,6 @@ class ChannelMessageSend {
 }
 
 /// Update a message previously sent to a realtime chat channel.
-@jsonSerializable
 class ChannelMessageUpdate {
   String channel_id;
   String message_id;
@@ -162,7 +177,6 @@ class ChannelMessageUpdate {
 }
 
 /// Remove a message previously sent to a realtime chat channel.
-@jsonSerializable
 class ChannelMessageRemove {
   String channel_id;
   String message_id;
@@ -173,7 +187,6 @@ class ChannelMessageRemove {
 }
 
 /// Presence update for a particular realtime chat channel.
-@jsonSerializable
 class ChannelPresenceEvent {
   String channel_id;
   List<Presence> joins;
@@ -186,7 +199,6 @@ class ChannelPresenceEvent {
 }
 
 /// Stream identifier
-@jsonSerializable
 class StreamId {
   int mode;
   String subject;
@@ -201,7 +213,6 @@ class StreamId {
 }
 
 /// Stream data.
-@jsonSerializable
 class StreamData {
   StreamId stream;
   Presence stream_presence;
@@ -214,7 +225,6 @@ class StreamData {
 }
 
 /// Presence updates.
-@jsonSerializable
 class StreamPresenceEvent {
   StreamId stream;
   List<Presence> joins;
@@ -227,8 +237,7 @@ class StreamPresenceEvent {
 }
 
 /// Match presence updates.
-@jsonSerializable
-class MatchPresenceEvent {
+class MatchPresenceEvent implements Serializable {
   String match_id;
   List<Presence> joins;
   List<Presence> leaves;
@@ -237,10 +246,37 @@ class MatchPresenceEvent {
     this.joins,
     this.leaves,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'match_id': match_id,
+      'joins': joins?.map((x) => x?.toMap())?.toList(),
+      'leaves': leaves?.map((x) => x?.toMap())?.toList(),
+    };
+  }
+
+  factory MatchPresenceEvent.fromMap(Map<String, dynamic> map) {
+    if (map == null) return null;
+
+    return MatchPresenceEvent(
+      match_id: map['match_id'],
+      joins: map['joins'] != null
+          ? List<Presence>.from(map['joins']?.map((x) => Presence.fromMap(x)))
+          : [],
+      leaves: map['leaves'] != null
+          ? List<Presence>.from(map['leaves']?.map((x) => Presence.fromMap(x)))
+          : [],
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory MatchPresenceEvent.fromJson(String source) =>
+      MatchPresenceEvent.fromMap(json.decode(source));
 }
 
 /// Start a matchmaking process.
-@jsonSerializable
+
 class MatchmakerAdd {
   int min_count;
   int max_count;
@@ -257,7 +293,7 @@ class MatchmakerAdd {
 }
 
 /// Cancel a matchmaking process.
-@jsonSerializable
+
 class MatchmakerRemove {
   String ticket;
   MatchmakerRemove({
@@ -266,7 +302,7 @@ class MatchmakerRemove {
 }
 
 /// A reference to a user and their matchmaking properties.
-@jsonSerializable
+
 class MatchmakerUser {
   Presence presence;
   Map<String, String> string_properties;
@@ -279,7 +315,7 @@ class MatchmakerUser {
 }
 
 /// Matchmaking result.
-@jsonSerializable
+
 class MatchmakerMatched {
   String ticket;
   String match_id;
@@ -296,7 +332,7 @@ class MatchmakerMatched {
 }
 
 /// A realtime match
-@jsonSerializable
+
 class Match {
   String match_id;
   bool authoritative;
@@ -315,7 +351,7 @@ class Match {
 }
 
 /// Create a multiplayer match.
-@jsonSerializable
+
 class CreateMatch {
   String name;
   int numPlayers;
@@ -325,12 +361,33 @@ class CreateMatch {
     this.numPlayers,
     this.openGame,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'name': name,
+      'numPlayers': numPlayers,
+      'openGame': openGame,
+    };
+  }
+
+  factory CreateMatch.fromMap(Map<String, dynamic> map) {
+    if (map == null) return null;
+
+    return CreateMatch(
+      name: map['name'],
+      numPlayers: map['numPlayers'],
+      openGame: map['openGame'],
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory CreateMatch.fromJson(String source) =>
+      CreateMatch.fromMap(json.decode(source));
 }
 
 /// Join a multiplayer match.
-@jsonSerializable
-@Json(name: 'match_join', ignoreNullMembers: true)
-class JoinMatch {
+class JoinMatch implements Serializable {
   String match_id;
   String token;
   Map<String, dynamic> metadata;
@@ -339,10 +396,35 @@ class JoinMatch {
     this.token,
     this.metadata,
   });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'match_join': {
+        'match_id': match_id,
+        'token': token,
+        'metadata': metadata,
+      }
+    };
+  }
+
+  factory JoinMatch.fromMap(Map<String, dynamic> map) {
+    if (map == null) return null;
+
+    return JoinMatch(
+      match_id: map['match_id'],
+      token: map['token'],
+      metadata: Map<String, dynamic>.from(map['metadata']),
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory JoinMatch.fromJson(String source) =>
+      JoinMatch.fromMap(json.decode(source));
 }
 
 /// Leave a multiplayer match.
-@jsonSerializable
+
 class LeaveMatch {
   String match_id;
   LeaveMatch({
@@ -351,7 +433,7 @@ class LeaveMatch {
 }
 
 /// Match data */
-@jsonSerializable
+
 class MatchData {
   String match_id;
   int op_code;
@@ -376,7 +458,7 @@ class Rpc {
 }
 
 /// A snapshot of statuses for some set of users.
-@jsonSerializable
+
 class Status {
   List<Presence> presences;
   Status({
@@ -385,7 +467,7 @@ class Status {
 }
 
 /// Start receiving status updates for some set of users.
-@jsonSerializable
+
 class StatusFollow {
   List<String> status_follow;
   StatusFollow({
@@ -394,7 +476,7 @@ class StatusFollow {
 }
 
 /// A batch of status updates for a given user.
-@jsonSerializable
+
 class StatusPresenceEvent {
   List<Presence> joins;
   List<Presence> leaves;
@@ -405,7 +487,7 @@ class StatusPresenceEvent {
 }
 
 /// Stop receiving status updates for some set of users.
-@jsonSerializable
+
 class StatusUnfollow {
   List<String> status_follow;
   StatusUnfollow({
@@ -414,10 +496,14 @@ class StatusUnfollow {
 }
 
 /// Set the user's own status.
-@jsonSerializable
+
 class StatusUpdate {
   Status status_update;
   StatusUpdate({
     this.status_update,
   });
+}
+
+abstract class Serializable {
+  String toJson();
 }
