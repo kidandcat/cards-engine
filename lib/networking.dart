@@ -15,6 +15,7 @@ class Networking {
   }
   Networking._internal() {
     nakama = Apigrpc.create(getClient());
+
     refreshSession();
   }
   // Singleton end
@@ -25,45 +26,61 @@ class Networking {
   Socket socket;
 
   Future<void> refreshSession() async {
+    await refreshToken();
+    if (session != null) GetX.Get.off(Lobby());
+    // Refresh session when token expires (30s)
+    Timer.periodic(Duration(seconds: 20), (_) {
+      refreshToken();
+    });
+    sessionLoaded();
+  }
+
+  Future<void> refreshToken() async {
     var box = GetStorage();
     var token = box.read<String>('refreshToken');
     if (token != null) {
-      var response = await nakama.nakamaSessionRefresh(
+      // token refreshing must be done with Authorization Basic
+      var basicClient = getBasicClient();
+      var nkc = Apigrpc.create(basicClient);
+      var response = await nkc.nakamaSessionRefresh(
         body: ApiSessionRefreshRequest(token: token),
       );
       if (response.isSuccessful) {
         session = response.body;
-        await sessionLoaded();
+        nakama.client = getClient(); // Refresh client to use session
       } else {
         print('Session not refreshed: ${response.error}');
       }
     }
   }
 
-  ChopperClient getClient() {
-    if (session != null) {
-      return ChopperClient(
-        converter: JsonSerializableConverter(),
-        baseUrl: 'https://world.galax.be',
-        interceptors: [
-          (Request request) async => request.copyWith(
-                headers: {'Authorization': 'Bearer ${session.token}'},
-              ),
-        ],
-      );
-    } else {
-      var bytes = utf8.encode('defaultkey:');
-      var base64Str = base64.encode(bytes);
-      return ChopperClient(
-        converter: JsonSerializableConverter(),
-        baseUrl: 'https://world.galax.be',
-        interceptors: [
-          (Request request) async => request.copyWith(
-                headers: {'Authorization': 'Basic $base64Str'},
-              ),
-        ],
-      );
-    }
+  ChopperClient getClient() =>
+      session != null ? getBearerClient() : getBasicClient();
+
+  ChopperClient getBearerClient() {
+    return ChopperClient(
+      converter: JsonSerializableConverter(),
+      baseUrl: 'https://world.galax.be',
+      interceptors: [
+        (Request request) async => request.copyWith(
+              headers: {'Authorization': 'Bearer ${session.token}'},
+            ),
+      ],
+    );
+  }
+
+  ChopperClient getBasicClient() {
+    var bytes = utf8.encode('defaultkey:');
+    var base64Str = base64.encode(bytes);
+    return ChopperClient(
+      converter: JsonSerializableConverter(),
+      baseUrl: 'https://world.galax.be',
+      interceptors: [
+        (Request request) async => request.copyWith(
+              headers: {'Authorization': 'Basic $base64Str'},
+            ),
+      ],
+    );
   }
 
   Future<void> login(String email, String password) async {
@@ -97,6 +114,35 @@ class Networking {
     print('match created');
   }
 
+  void startMatch(String matchId) {
+    var ms = MatchState(
+      matchId: matchId,
+      opCode: OpCode.START_GAME,
+    );
+    socket.send(ms);
+  }
+
+  void playBet(String suit, int number) {
+    var ms = MatchState(
+      opCode: OpCode.START_GAME,
+      payload: json.encode({
+        'card': {
+          'suit': suit,
+          'number': number,
+        },
+      }),
+    );
+    socket.send(ms);
+  }
+
+  void playCard(String matchId) {
+    var ms = MatchState(
+      matchId: matchId,
+      opCode: OpCode.START_GAME,
+    );
+    socket.send(ms);
+  }
+
   Future<ApiMatchList> listMatches() async {
     var response = await nakama.nakamaListMatches(limit: 50);
     if (response.isSuccessful) {
@@ -112,11 +158,6 @@ class Networking {
     await saveRefreshToken(session.refreshToken);
     connectSocket();
     GetX.Get.off(Lobby());
-    // Refresh session when token expires (30s)
-    Timer(Duration(seconds: 30), () {
-      print('Token refreshed');
-      refreshSession();
-    });
   }
 
   void connectSocket() {
@@ -125,6 +166,7 @@ class Networking {
   }
 
   void joinMatch(String matchId) {
+    assert(socket != null);
     assert(matchId != null);
     var jm = JoinMatch();
     jm.match_id = matchId;
@@ -147,12 +189,15 @@ class Networking {
   }
 
   StreamController<MatchPresenceEvent> socketMatchPresence = StreamController();
+  StreamController<MatchState> socketMatchState = StreamController();
   StreamController<ApiMatch> socketMatch = StreamController();
 
   void onSocketMessage(dynamic msg) {
     Map<String, dynamic> map = json.decode(msg);
     if (map.containsKey('match')) {
       socketMatch.add(ApiMatch.fromJson(map));
+    } else if (map.containsKey('match_state')) {
+      socketMatchState.add(MatchState.fromMap(map['match_state']));
     } else if (map.containsKey('match_presence_event')) {
       socketMatchPresence
           .add(MatchPresenceEvent.fromMap(map['match_presence_event']));

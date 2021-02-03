@@ -93,9 +93,7 @@ class _LobbyState extends State<Lobby> {
                             onPressed: () {
                               try {
                                 nk.joinMatch(matches[index].matchId);
-                                nk.socketMatch.stream.listen((event) {
-                                  Get.off(GameRoom(event));
-                                });
+                                Get.off(GameRoom(matches[index]));
                               } on StateError catch (e) {
                                 print(e);
                                 Get.defaultDialog(title: e.message);

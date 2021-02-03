@@ -1,5 +1,7 @@
+import 'package:cartas/dashboard.dart';
 import 'package:cartas/socket.dart';
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
 
 import 'networking.dart';
 import 'swagger/apigrpc.swagger.dart';
@@ -19,8 +21,12 @@ class _GameRoomState extends State<GameRoom> {
   @override
   void initState() {
     super.initState();
+    nk.socketMatchState.stream.listen((event) {
+      print('RECEIVED MATCH STATE: $event');
+    });
+
     nk.socketMatchPresence.stream.listen((event) {
-      print('socketMatchPresence $event ${event.joins}');
+      print('RECEIVED socketMatchPresence');
       setState(() {
         if (event.joins != null) {
           players.addAll(event.joins);
@@ -43,8 +49,20 @@ class _GameRoomState extends State<GameRoom> {
               Expanded(
                 child: ListView.builder(
                   itemCount: players.length,
-                  itemBuilder: (context, index) =>
-                      Text('${players[index].username}'),
+                  itemBuilder: (context, index) => Container(
+                    margin: const EdgeInsets.all(30),
+                    child: Text('${players[index].username}'),
+                  ),
+                ),
+              ),
+              Padding(
+                padding: const EdgeInsets.all(30),
+                child: TextButton(
+                  child: Text('Start'),
+                  onPressed: () {
+                    nk.startMatch(widget.game.matchId);
+                    Get.off(Dashboard());
+                  },
                 ),
               ),
             ],

@@ -28,9 +28,6 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
-    // WidgetsBinding.instance.addPostFrameCallback((_) {
-    //   print('called after BUILD?');
-    // });
     return Container(
       child: Stack(
         children: c.cards

@@ -28,7 +28,6 @@ class GameCard {
   }
 
   void flip() {
-    print('Emitting to flipController in $name');
     flipController.add(null);
   }
 

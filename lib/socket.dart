@@ -63,6 +63,42 @@ class Presence implements Serializable {
       Presence.fromMap(json.decode(source));
 }
 
+enum OpCode { START_GAME, PLAY_BET, PLAY_CARD }
+
+class MatchState implements Serializable {
+  String matchId;
+  OpCode opCode;
+  String payload;
+  MatchState({
+    this.matchId,
+    this.opCode,
+    this.payload,
+  });
+
+  Map<String, dynamic> toMap() {
+    return {
+      'match_id': matchId,
+      'op_code': opCode.index,
+      'payload': payload,
+    };
+  }
+
+  factory MatchState.fromMap(Map<String, dynamic> map) {
+    if (map == null) return null;
+
+    return MatchState(
+      matchId: map['match_id'],
+      opCode: map['op_code'],
+      payload: map['payload'],
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory MatchState.fromJson(String source) =>
+      MatchState.fromMap(json.decode(source));
+}
+
 /// A response fron a channel join operation.
 
 class Channel {
