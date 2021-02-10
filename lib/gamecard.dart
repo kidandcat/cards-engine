@@ -11,21 +11,18 @@ class GameCard {
   static const double width = 123;
   static const double height = 200;
 
-  StreamController<void> flipController;
+  StreamController<void> flipController = StreamController<void>();
   String name;
   Deck parent;
   Color color;
-  Key key;
+  Key key = UniqueKey();
 
   bool isMoving = false;
 
   double top = 0;
   double left = 0;
 
-  GameCard({this.name, this.color, this.parent}) {
-    flipController = StreamController<void>(sync: true);
-    key = UniqueKey();
-  }
+  GameCard({this.name, this.color, this.parent});
 
   void flip() {
     flipController.add(null);
@@ -53,6 +50,7 @@ class _GameCardWidgetState extends State<GameCardWidget>
   AnimationController _animationController;
   Animation _animation;
   AnimationStatus _animationStatus = AnimationStatus.dismissed;
+  StreamSubscription<void> listener;
 
   @override
   void initState() {
@@ -67,13 +65,19 @@ class _GameCardWidgetState extends State<GameCardWidget>
         _animationStatus = status;
       });
 
-    widget.card.value.flipController.stream.listen((event) {
+    listener = widget.card.value.flipController.stream.listen((event) {
       if (_animationStatus == AnimationStatus.dismissed) {
         _animationController.forward();
       } else {
         _animationController.reverse();
       }
     });
+  }
+
+  @override
+  void dispose() {
+    super.dispose();
+    listener.cancel();
   }
 
   @override

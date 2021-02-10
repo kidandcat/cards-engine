@@ -114,35 +114,6 @@ class Networking {
     print('match created');
   }
 
-  void startMatch(String matchId) {
-    var ms = MatchState(
-      matchId: matchId,
-      opCode: OpCode.START_GAME,
-    );
-    socket.send(ms);
-  }
-
-  void playBet(String suit, int number) {
-    var ms = MatchState(
-      opCode: OpCode.START_GAME,
-      payload: json.encode({
-        'card': {
-          'suit': suit,
-          'number': number,
-        },
-      }),
-    );
-    socket.send(ms);
-  }
-
-  void playCard(String matchId) {
-    var ms = MatchState(
-      matchId: matchId,
-      opCode: OpCode.START_GAME,
-    );
-    socket.send(ms);
-  }
-
   Future<ApiMatchList> listMatches() async {
     var response = await nakama.nakamaListMatches(limit: 50);
     if (response.isSuccessful) {
@@ -196,6 +167,8 @@ class Networking {
     Map<String, dynamic> map = json.decode(msg);
     if (map.containsKey('match')) {
       socketMatch.add(ApiMatch.fromJson(map));
+    } else if (map.containsKey('match_data')) {
+      print('<--- match_data_send ---> $map');
     } else if (map.containsKey('match_state')) {
       socketMatchState.add(MatchState.fromMap(map['match_state']));
     } else if (map.containsKey('match_presence_event')) {
@@ -204,5 +177,6 @@ class Networking {
     } else {
       assert(false, 'Message not implemented: $map');
     }
+    print('<--- onSocketMessage ---> $map');
   }
 }

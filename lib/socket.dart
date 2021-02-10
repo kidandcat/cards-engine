@@ -1,8 +1,5 @@
 import 'dart:convert';
-
-import 'package:dart_json_mapper/dart_json_mapper.dart';
 import 'package:web_socket_channel/io.dart';
-
 import 'swagger/apigrpc.swagger.dart';
 
 class Socket {
@@ -15,7 +12,6 @@ class Socket {
 
   void send(Serializable data) {
     assert(data != null);
-    Map<String, dynamic> template = {'cid': '1'};
     _send(data.toJson());
   }
 
@@ -77,9 +73,11 @@ class MatchState implements Serializable {
 
   Map<String, dynamic> toMap() {
     return {
-      'match_id': matchId,
-      'op_code': opCode.index,
-      'payload': payload,
+      'match_data_send': {
+        'match_id': matchId,
+        'op_code': opCode.index,
+        'payload': payload,
+      }
     };
   }
 
