@@ -12,7 +12,9 @@ class GameCard {
   static const double height = 200;
 
   StreamController<void> flipController = StreamController<void>();
-  String name;
+  StreamSubscription<void> listener;
+  int number = 0;
+  int suit = 0;
   Deck parent;
   Color color;
   Key key = UniqueKey();
@@ -22,7 +24,7 @@ class GameCard {
   double top = 0;
   double left = 0;
 
-  GameCard({this.name, this.color, this.parent});
+  GameCard({this.number, this.suit, this.color, this.parent});
 
   void flip() {
     flipController.add(null);
@@ -30,7 +32,7 @@ class GameCard {
 
   @override
   String toString() {
-    return ' GameCard($name) ';
+    return ' GameCard($suit, $number) ';
   }
 }
 
@@ -65,19 +67,15 @@ class _GameCardWidgetState extends State<GameCardWidget>
         _animationStatus = status;
       });
 
-    listener = widget.card.value.flipController.stream.listen((event) {
+    if (widget.card.value.listener != null) widget.card.value.listener.cancel();
+    widget.card.value.listener =
+        widget.card.value.flipController.stream.listen((event) {
       if (_animationStatus == AnimationStatus.dismissed) {
         _animationController.forward();
       } else {
         _animationController.reverse();
       }
     });
-  }
-
-  @override
-  void dispose() {
-    super.dispose();
-    listener.cancel();
   }
 
   @override
@@ -132,7 +130,7 @@ class _GameCardWidgetState extends State<GameCardWidget>
                       ),
                       child: Center(
                         child: Text(
-                          "${widget.card.value.name}",
+                          "${widget.card.value.number}",
                           style: TextStyle(color: Colors.deepPurple[900]),
                         ),
                       ),

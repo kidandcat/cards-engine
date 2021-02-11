@@ -101,17 +101,15 @@ class Networking {
   }
 
   Future<void> createMatch(String name) async {
-    var cm = CreateMatch(name: name, numPlayers: 4, openGame: true);
+    var cm = CreateMatch(name: name, numMaxPlayers: 4, openGame: true);
     var response = await nakama.nakamaRpcFunc(
       id: 'create_match',
       body: cm.toJson(),
     );
     if (!response.isSuccessful) {
-      print('error creating matches');
       var j = json.decode(response.error);
       throw j['message'];
     }
-    print('match created');
   }
 
   Future<ApiMatchList> listMatches() async {
@@ -160,23 +158,21 @@ class Networking {
   }
 
   StreamController<MatchPresenceEvent> socketMatchPresence = StreamController();
-  StreamController<MatchState> socketMatchState = StreamController();
   StreamController<ApiMatch> socketMatch = StreamController();
+  StreamController<MatchData> socketMatchData = StreamController();
 
   void onSocketMessage(dynamic msg) {
     Map<String, dynamic> map = json.decode(msg);
+    print('------> $map');
     if (map.containsKey('match')) {
       socketMatch.add(ApiMatch.fromJson(map));
     } else if (map.containsKey('match_data')) {
-      print('<--- match_data_send ---> $map');
-    } else if (map.containsKey('match_state')) {
-      socketMatchState.add(MatchState.fromMap(map['match_state']));
+      socketMatchData.add(MatchData.fromMap(map['match_data']));
     } else if (map.containsKey('match_presence_event')) {
       socketMatchPresence
           .add(MatchPresenceEvent.fromMap(map['match_presence_event']));
     } else {
       assert(false, 'Message not implemented: $map');
     }
-    print('<--- onSocketMessage ---> $map');
   }
 }

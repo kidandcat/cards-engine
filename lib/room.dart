@@ -30,29 +30,30 @@ class _GameRoomState extends State<GameRoom> {
   @override
   Widget build(BuildContext context) => Scaffold(
         body: Container(
-          child: Column(
-            children: [
-              Text('${widget.game.label} ${widget.game.tickRate}'),
-              Expanded(
-                child: ListView.builder(
-                  itemCount: c.players.length,
-                  itemBuilder: (context, index) => Container(
-                    margin: const EdgeInsets.all(30),
-                    child: Text('${c.players[index].username}'),
+          child: Obx(
+            () => Column(
+              children: [
+                Text('${widget.game.label} ${widget.game.tickRate}'),
+                Expanded(
+                  child: ListView.builder(
+                    itemCount: c.players.length,
+                    itemBuilder: (context, index) => Container(
+                      margin: const EdgeInsets.all(30),
+                      child: Text('${c.players[index].username}'),
+                    ),
                   ),
                 ),
-              ),
-              Padding(
-                padding: const EdgeInsets.all(30),
-                child: TextButton(
-                  child: Text('Start'),
-                  onPressed: () {
-                    ge.startMatch(widget.game.matchId);
-                    // Get.off(Dashboard(ge));
-                  },
+                Padding(
+                  padding: const EdgeInsets.all(30),
+                  child: TextButton(
+                    child: Text('Start'),
+                    onPressed: () {
+                      ge.startMatch(widget.game.matchId);
+                    },
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
         ),
       );

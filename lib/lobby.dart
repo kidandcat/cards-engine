@@ -52,8 +52,20 @@ class _LobbyState extends State<Lobby> {
                   child: Text('Create'),
                   onPressed: () async {
                     try {
-                      await nk.createMatch('Test');
-                      refreshMatches();
+                      Get.defaultDialog(
+                        title: 'Name:',
+                        backgroundColor: Colors.teal[900],
+                        content: Container(
+                          color: Colors.teal[900],
+                          child: TextField(
+                            onSubmitted: (value) async {
+                              await nk.createMatch(value);
+                              refreshMatches();
+                              Get.back();
+                            },
+                          ),
+                        ),
+                      );
                     } on String catch (e) {
                       Get.defaultDialog(title: e);
                     }

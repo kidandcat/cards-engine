@@ -1,5 +1,7 @@
 import 'dart:convert';
+
 import 'package:web_socket_channel/io.dart';
+
 import 'swagger/apigrpc.swagger.dart';
 
 class Socket {
@@ -16,7 +18,7 @@ class Socket {
   }
 
   void _send(String data) {
-    print('Sending $data');
+    print('<----- SENT $data');
     channel.sink.add(data);
   }
 }
@@ -59,42 +61,14 @@ class Presence implements Serializable {
       Presence.fromMap(json.decode(source));
 }
 
-enum OpCode { START_GAME, PLAY_BET, PLAY_CARD }
-
-class MatchState implements Serializable {
-  String matchId;
-  OpCode opCode;
-  String payload;
-  MatchState({
-    this.matchId,
-    this.opCode,
-    this.payload,
-  });
-
-  Map<String, dynamic> toMap() {
-    return {
-      'match_data_send': {
-        'match_id': matchId,
-        'op_code': opCode.index,
-        'payload': payload,
-      }
-    };
-  }
-
-  factory MatchState.fromMap(Map<String, dynamic> map) {
-    if (map == null) return null;
-
-    return MatchState(
-      matchId: map['match_id'],
-      opCode: map['op_code'],
-      payload: map['payload'],
-    );
-  }
-
-  String toJson() => json.encode(toMap());
-
-  factory MatchState.fromJson(String source) =>
-      MatchState.fromMap(json.decode(source));
+enum OpCodeClient { START_GAME, PLAY_BET, PLAY_CARD }
+enum OpCodeServer {
+  ERROR,
+  BET_PHASE,
+  PLAY_CARD_PHASE,
+  GAME_FINISHED,
+  BET_RECEIVED,
+  CARD_PLAYED,
 }
 
 /// A response fron a channel join operation.
@@ -388,18 +362,18 @@ class Match {
 
 class CreateMatch {
   String name;
-  int numPlayers;
+  int numMaxPlayers;
   bool openGame;
   CreateMatch({
     this.name,
-    this.numPlayers,
+    this.numMaxPlayers,
     this.openGame,
   });
 
   Map<String, dynamic> toMap() {
     return {
       'name': name,
-      'numPlayers': numPlayers,
+      'numMaxPlayers': numMaxPlayers,
       'openGame': openGame,
     };
   }
@@ -409,7 +383,7 @@ class CreateMatch {
 
     return CreateMatch(
       name: map['name'],
-      numPlayers: map['numPlayers'],
+      numMaxPlayers: map['numPlayers'],
       openGame: map['openGame'],
     );
   }
@@ -468,17 +442,48 @@ class LeaveMatch {
 
 /// Match data */
 
-class MatchData {
-  String match_id;
-  int op_code;
-  dynamic data;
+class MatchData extends Serializable {
+  String matchId;
+  int opcode;
+  Map<String, dynamic> data = {};
   List<Presence> presences;
   MatchData({
-    this.match_id,
-    this.op_code,
+    this.matchId,
+    this.opcode,
     this.data,
     this.presences,
   });
+
+  Map<String, dynamic> toMap() {
+    var bytes = utf8.encode(json.encode(data));
+    var base64Str = base64.encode(bytes);
+    return {
+      'match_data_send': {
+        'match_id': matchId,
+        'op_code': opcode,
+        'data': base64Str,
+        'presences': presences?.map((x) => x?.toMap())?.toList(),
+      }
+    };
+  }
+
+  factory MatchData.fromMap(Map<String, dynamic> map) {
+    if (map == null) return null;
+    var bytes = base64.decode(map['data']);
+    var base64Str = utf8.decode(bytes);
+    print('MatchData: $map');
+    return MatchData(
+      matchId: map['match_id'],
+      opcode: int.parse(map['op_code']),
+      data: json.decode(base64Str),
+      presences: [],
+    );
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory MatchData.fromJson(String source) =>
+      MatchData.fromMap(json.decode(source));
 }
 
 /** Send a message contains match data. */
