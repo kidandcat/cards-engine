@@ -1,7 +1,7 @@
-import 'package:json_annotation/json_annotation.dart';
-import 'package:flutter/widgets.dart';
-import 'package:chopper/chopper.dart';
 import 'package:chopper/chopper.dart' as chopper;
+import 'package:chopper/chopper.dart';
+import 'package:flutter/widgets.dart';
+import 'package:json_annotation/json_annotation.dart';
 
 part 'apigrpc.swagger.chopper.dart';
 part 'apigrpc.swagger.g.dart';
@@ -1780,6 +1780,11 @@ class ApiMatch {
   static const fromJsonFactory = _$ApiMatchFromJson;
   static const toJsonFactory = _$ApiMatchToJson;
   Map<String, dynamic> toJson() => _$ApiMatchToJson(this);
+
+  @override
+  String toString() {
+    return 'ApiMatch(matchId: $matchId, authoritative: $authoritative, label: $label, size: $size, tickRate: $tickRate, handlerName: $handlerName)';
+  }
 }
 
 extension $ApiMatchExtension on ApiMatch {

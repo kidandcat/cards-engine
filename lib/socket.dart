@@ -18,7 +18,7 @@ class Socket {
   }
 
   void _send(String data) {
-    print('<----- SENT $data');
+    print('------> $data');
     channel.sink.add(data);
   }
 }
@@ -281,6 +281,10 @@ class MatchPresenceEvent implements Serializable {
 
   factory MatchPresenceEvent.fromJson(String source) =>
       MatchPresenceEvent.fromMap(json.decode(source));
+
+  @override
+  String toString() =>
+      'MatchPresenceEvent(match_id: $match_id, joins: $joins, leaves: $leaves)';
 }
 
 /// Start a matchmaking process.
@@ -471,7 +475,6 @@ class MatchData extends Serializable {
     if (map == null) return null;
     var bytes = base64.decode(map['data']);
     var base64Str = utf8.decode(bytes);
-    print('MatchData: $map');
     return MatchData(
       matchId: map['match_id'],
       opcode: int.parse(map['op_code']),

@@ -68,6 +68,10 @@ class GameEngine {
 
     refreshDashboard();
 
+    nk.socketMatch.stream.listen((event) {
+      print('socketMatch received $event');
+    });
+
     nk.socketMatchPresence.stream.listen((event) {
       if (event.joins != null) {
         c.players.addAll(event.joins);

@@ -162,10 +162,19 @@ class Networking {
   StreamController<MatchData> socketMatchData = StreamController();
 
   void onSocketMessage(dynamic msg) {
+    print('<------ $msg');
     Map<String, dynamic> map = json.decode(msg);
-    print('------> $map');
     if (map.containsKey('match')) {
-      socketMatch.add(ApiMatch.fromJson(map));
+      var match = ApiMatch.fromJson(map['match']);
+      socketMatch.add(match);
+      if (map['match']['presences'] != null) {
+        List<dynamic> p = map['match']['presences'];
+        List<Presence> presences = p.map((e) => Presence.fromMap(e)).toList();
+        socketMatchPresence.add(MatchPresenceEvent(
+          joins: presences,
+          match_id: match.matchId,
+        ));
+      }
     } else if (map.containsKey('match_data')) {
       socketMatchData.add(MatchData.fromMap(map['match_data']));
     } else if (map.containsKey('match_presence_event')) {
