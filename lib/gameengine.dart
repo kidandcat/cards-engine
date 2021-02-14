@@ -60,8 +60,10 @@ class GameEngine {
     };
 
     hand.onDragUp = (card) {
+      print('onDragUp $phase');
       if (phase == GamePhase.PLAY_READY) {
-        playCard(matchId, card);
+        print('playCard');
+        playCard(matchId, hand.indexOf(card));
         cardSelected = card;
       }
     };
@@ -175,16 +177,11 @@ class GameEngine {
     nk.socket.send(ms);
   }
 
-  void playCard(String matchId, Rx<GameCard> card) {
+  void playCard(String matchId, int index) {
     var ms = MatchData(
       matchId: matchId,
       opcode: OpCodeClient.PLAY_CARD.index,
-      data: {
-        'card': {
-          'suit': card.value.suit,
-          'number': card.value.number,
-        }
-      },
+      data: {'card_idx': index},
     );
     nk.socket.send(ms);
   }

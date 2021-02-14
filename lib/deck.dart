@@ -47,6 +47,12 @@ class Deck {
     }
   }
 
+  int indexOf(Rx<GameCard> card) {
+    if (card.value.parent != this) throw 'card is not in this Deck';
+    var myCards = c.cards.where((card) => card.value.parent == this).toList();
+    return myCards.indexOf(card);
+  }
+
   void move(Rx<GameCard> card, int index) async {
     if (card.value.parent == this) throw 'Card already owned by Deck';
     Deck oldParent;

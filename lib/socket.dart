@@ -61,8 +61,9 @@ class Presence implements Serializable {
       Presence.fromMap(json.decode(source));
 }
 
-enum OpCodeClient { START_GAME, PLAY_BET, PLAY_CARD }
+enum OpCodeClient { NONE, START_GAME, PLAY_BET, PLAY_CARD }
 enum OpCodeServer {
+  NONE,
   ERROR,
   BET_PHASE,
   PLAY_CARD_PHASE,

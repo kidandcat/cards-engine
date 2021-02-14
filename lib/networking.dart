@@ -89,6 +89,7 @@ class Networking {
         email: email,
         password: password,
       ),
+      username: email,
     );
 
     if (response.isSuccessful) {
