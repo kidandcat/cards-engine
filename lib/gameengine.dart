@@ -19,11 +19,15 @@ class GameEngine {
   Deck center;
   GameHand hand;
 
+  // current match
+  int roundCardNumber = 0;
   String matchId;
   Rx<GameCard> cardSelected;
   bool gameStarted = false;
   bool waitingForRefresh = false;
   GamePhase phase = GamePhase.BET_READY;
+  Map<String, Deck> playerDeks = {};
+  List<double> positions;
 
   Timer refreshTimer;
   void refreshDashboard() {
@@ -40,6 +44,11 @@ class GameEngine {
   }
 
   GameEngine(BuildContext context) {
+    positions = [
+      10,
+      context.size.width / 2,
+      context.size.width - GameCard.width - 10
+    ];
     center = Deck(
       name: 'Table',
       spacingY: 0.2,
@@ -86,6 +95,7 @@ class GameEngine {
     });
 
     nk.socketMatchData.stream.listen((event) {
+      // deck positions for players
       switch (OpCodeServer.values[event.opcode]) {
         case OpCodeServer.ERROR:
           Get.dialog(Container(
@@ -102,6 +112,7 @@ class GameEngine {
           ));
           break;
         case OpCodeServer.BET_PHASE:
+          roundCardNumber = 0;
           if (!gameStarted) {
             Get.off(Dashboard(this));
             matchId = event.matchId;
@@ -109,32 +120,68 @@ class GameEngine {
           }
           phase = GamePhase.BET_READY;
           for (var c in event.data['hand']) {
+            roundCardNumber++;
             hand.newCard(GameCard(
               color: Colors.blue,
               suit: c['suit'],
               number: c['number'],
             ).obs);
           }
+          var index = 0;
+          // add other player's decks
+          for (var p in c.players) {
+            if (p.user_id == nk.userdata.user.id) continue;
+            // create the deck
+            // TODO: reset it on every round may help with leaving players?
+            playerDeks[p.user_id] = Deck(
+              left: positions[index],
+              top: 30,
+              refreshDashboard: refreshDashboard,
+              name: p.username,
+            );
+            // add card
+            var cardForPlayer = GameCard(
+              number: 0,
+              suit: 0,
+              color: Colors.red,
+            ).obs;
+            playerDeks[p.user_id].moveOnTop(cardForPlayer);
+            cardForPlayer.value.flip();
+            index++;
+          }
           Get.defaultDialog(
             title: 'Bet:',
             backgroundColor: Colors.teal[900],
             content: Container(
               color: Colors.teal[900],
-              child: TextField(
-                keyboardType: TextInputType.number,
-                onSubmitted: (value) async {
-                  assert(phase == GamePhase.BET_READY);
-                  playBet(event.matchId, int.parse(value));
-                  Get.back();
-                },
+              child: ListView.builder(
+                itemCount: roundCardNumber,
+                itemBuilder: (context, index) => ListTile(
+                  title: Text('$index'),
+                  leading: Radio(
+                    value: index,
+                    onChanged: (int value) {
+                      assert(phase == GamePhase.BET_READY);
+                      playBet(event.matchId, value);
+                      Get.back();
+                    },
+                  ),
+                ),
               ),
             ),
           );
           break;
         case OpCodeServer.CARD_PLAYED:
-          if (event.data['userId'] == nk.userdata.user.id) {
+          if (event.data['player'] == nk.userdata.user.id) {
             center.moveOnTop(cardSelected);
             phase = GamePhase.PLAY_DONE;
+          } else {
+            var cardToPlay = playerDeks[event.data['player']].first();
+            cardToPlay.update((val) {
+              cardToPlay.value.number = event.data['card']['number'];
+              cardToPlay.value.suit = event.data['card']['suit'];
+            });
+            center.moveOnTop(cardToPlay);
           }
           Get.snackbar('Player Card', json.encode(event.data));
           break;

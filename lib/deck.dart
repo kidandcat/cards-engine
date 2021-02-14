@@ -47,6 +47,10 @@ class Deck {
     }
   }
 
+  Rx<GameCard> first() {
+    return c.cards.firstWhere((card) => card.value.parent == this);
+  }
+
   int indexOf(Rx<GameCard> card) {
     if (card.value.parent != this) throw 'card is not in this Deck';
     var myCards = c.cards.where((card) => card.value.parent == this).toList();
