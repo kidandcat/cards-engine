@@ -20,12 +20,13 @@ class _DashboardState extends State<Dashboard> {
     return Obx(
       () => KeyedSubtree(
         key: c.dashboardKey.value,
-        child: Container(
-          child: Stack(
-            children: c.cards
+        child: Stack(
+          children: [
+            widget.ge.renderUI(context),
+            ...c.cards
                 .map((card) => GameCardWidget(card, card.value.key))
-                .toList(),
-          ),
+                .toList()
+          ],
         ),
       ),
     );

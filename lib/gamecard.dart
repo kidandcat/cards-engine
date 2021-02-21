@@ -126,40 +126,38 @@ class _GameCardWidgetState extends State<GameCardWidget>
               transform: Matrix4.identity()
                 ..setEntry(3, 2, 0.002)
                 ..rotateY(pi * _animation.value),
-              child: _animation.value <= 0.5 ? front() : back(),
+              child: _animation.value <= 0.5
+                  ? Container(
+                      width: GameCard.width,
+                      height: GameCard.height,
+                      decoration: BoxDecoration(
+                        color: widget.card.value.color,
+                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                        border: Border.all(color: Colors.green, width: 3),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "${widget.card.value.number}",
+                          style: TextStyle(color: Colors.deepPurple[900]),
+                        ),
+                      ),
+                    )
+                  : Container(
+                      width: GameCard.width,
+                      height: GameCard.height,
+                      decoration: BoxDecoration(
+                        color: widget.card.value.color,
+                        borderRadius: BorderRadius.all(Radius.circular(5)),
+                        border: Border.all(color: Colors.green, width: 3),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "The other side",
+                          style: TextStyle(color: Colors.deepPurple[900]),
+                        ),
+                      ),
+                    ),
             ),
-          ),
-        ),
-      );
-
-  Widget front() => Container(
-        width: GameCard.width,
-        height: GameCard.height,
-        decoration: BoxDecoration(
-          color: widget.card.value.color,
-          borderRadius: BorderRadius.all(Radius.circular(5)),
-          border: Border.all(color: Colors.green, width: 3),
-        ),
-        child: Center(
-          child: Text(
-            "${widget.card.value.number}",
-            style: TextStyle(color: Colors.deepPurple[900]),
-          ),
-        ),
-      );
-
-  Widget back() => Container(
-        width: GameCard.width,
-        height: GameCard.height,
-        decoration: BoxDecoration(
-          color: widget.card.value.color,
-          borderRadius: BorderRadius.all(Radius.circular(5)),
-          border: Border.all(color: Colors.green, width: 3),
-        ),
-        child: Center(
-          child: Text(
-            "The other side",
-            style: TextStyle(color: Colors.deepPurple[900]),
           ),
         ),
       );

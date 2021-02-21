@@ -153,12 +153,15 @@ class GameEngine {
             title: 'Bet:',
             backgroundColor: Colors.teal[900],
             content: Container(
+              width: 300,
+              height: 300,
               color: Colors.teal[900],
               child: ListView.builder(
-                itemCount: roundCardNumber,
+                itemCount: roundCardNumber + 1,
                 itemBuilder: (context, index) => ListTile(
                   title: Text('$index'),
                   leading: Radio(
+                    groupValue: -1,
                     value: index,
                     onChanged: (int value) {
                       assert(phase == GamePhase.BET_READY);
@@ -231,5 +234,9 @@ class GameEngine {
       data: {'card_idx': index},
     );
     nk.socket.send(ms);
+  }
+
+  Widget renderUI(BuildContext context) {
+    return Text('UI');
   }
 }
