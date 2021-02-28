@@ -7,46 +7,39 @@ import 'config.dart';
 import 'deck.dart';
 import 'gamestate.dart';
 
-class GameCard {
+class GameCardV2 extends StatefulWidget {
   static const double width = 123;
   static const double height = 200;
 
+  GameCardV2({int number, int suit, Color color, Deck parent}) {
+    this.number.value = number;
+    this.suit.value = suit;
+    this.color.value = color;
+    this.parent.value = parent;
+  }
+
   StreamController<void> flipController = StreamController<void>();
   StreamSubscription<void> listener;
-  int number = 0;
-  int suit = 0;
-  Deck parent;
-  Color color;
-  Key key = UniqueKey();
-  bool isFlipped = false;
+  RxInt number = 0.obs;
+  RxInt suit = 0.obs;
+  Rx<Deck> parent = Rx<Deck>();
+  Rx<Color> color = Rx<Color>();
+  RxBool isFlipped = false.obs;
 
-  bool isMoving = false;
+  RxBool isMoving = false.obs;
 
-  double top = 0;
-  double left = 0;
-
-  GameCard({this.number, this.suit, this.color, this.parent});
+  RxDouble top = 0.0.obs;
+  RxDouble left = 0.0.obs;
 
   void flip() {
     flipController.add(null);
   }
 
   @override
-  String toString() {
-    return ' GameCard($suit, $number) ';
-  }
-}
-
-class GameCardWidget extends StatefulWidget {
-  final Rx<GameCard> card;
-  final UniqueKey key;
-  GameCardWidget(this.card, this.key);
-
-  @override
   _GameCardWidgetState createState() => _GameCardWidgetState();
 }
 
-class _GameCardWidgetState extends State<GameCardWidget>
+class _GameCardWidgetState extends State<GameCardV2>
     with SingleTickerProviderStateMixin {
   final GameState c = Get.put(GameState());
 
@@ -68,11 +61,10 @@ class _GameCardWidgetState extends State<GameCardWidget>
         _animationStatus = status;
       });
 
-    if (widget.card.value.listener != null) widget.card.value.listener.cancel();
+    if (widget.listener != null) widget.listener.cancel();
 
     try {
-      widget.card.value.listener =
-          widget.card.value.flipController.stream.listen((event) {
+      widget.listener = widget.flipController.stream.listen((event) {
         if (_animationStatus == AnimationStatus.dismissed) {
           _animationController.forward();
         } else {
@@ -81,44 +73,40 @@ class _GameCardWidgetState extends State<GameCardWidget>
       });
     } catch (e) {
       print(
-          'Error in flipController stream listen error:$e listener:${widget.card.value.listener}');
+          'Error in flipController stream listen error:$e listener:${widget.listener}');
     }
   }
 
   @override
   Widget build(BuildContext context) => Obx(
         () => AnimatedPositioned(
-          key: widget.key,
           curve: Curves.easeInOut,
           duration: Config.animationDuration,
-          top: widget.card.value.top,
-          left: widget.card.value.left,
+          top: widget.top.value,
+          left: widget.left.value,
           onEnd: () {
-            widget.card.update((val) {
-              val.isMoving = false;
-              val.color = Colors.blue;
-            });
+            widget.isMoving.value = false;
+            widget.color.value = Colors.blue;
           },
           child: GestureDetector(
             onTap: () {
-              if (!widget.card.value.isMoving)
-                widget.card.value.parent.onTap(widget.card);
+              if (!widget.isMoving.value) widget.parent.value.onTap(widget);
             },
             onLongPress: () {
-              widget.card.value.parent.onLongPress(widget.card);
+              widget.parent.value.onLongPress(widget);
             },
             onVerticalDragEnd: (details) {
               if (details.primaryVelocity < 0) {
-                widget.card.value.parent.onDragUp(widget.card);
+                widget.parent.value.onDragUp(widget);
               } else {
-                widget.card.value.parent.onDragDown(widget.card);
+                widget.parent.value.onDragDown(widget);
               }
             },
             onHorizontalDragEnd: (details) {
               if (details.primaryVelocity < 0) {
-                widget.card.value.parent.onDragLeft(widget.card);
+                widget.parent.value.onDragLeft(widget);
               } else {
-                widget.card.value.parent.onDragRight(widget.card);
+                widget.parent.value.onDragRight(widget);
               }
             },
             child: Transform(
@@ -128,25 +116,25 @@ class _GameCardWidgetState extends State<GameCardWidget>
                 ..rotateY(pi * _animation.value),
               child: _animation.value <= 0.5
                   ? Container(
-                      width: GameCard.width,
-                      height: GameCard.height,
+                      width: GameCardV2.width,
+                      height: GameCardV2.height,
                       decoration: BoxDecoration(
-                        color: widget.card.value.color,
+                        color: widget.color.value,
                         borderRadius: BorderRadius.all(Radius.circular(5)),
                         border: Border.all(color: Colors.green, width: 3),
                       ),
                       child: Center(
                         child: Text(
-                          "${widget.card.value.number}",
+                          "${widget.number.value}",
                           style: TextStyle(color: Colors.deepPurple[900]),
                         ),
                       ),
                     )
                   : Container(
-                      width: GameCard.width,
-                      height: GameCard.height,
+                      width: GameCardV2.width,
+                      height: GameCardV2.height,
                       decoration: BoxDecoration(
-                        color: widget.card.value.color,
+                        color: widget.color.value,
                         borderRadius: BorderRadius.all(Radius.circular(5)),
                         border: Border.all(color: Colors.green, width: 3),
                       ),

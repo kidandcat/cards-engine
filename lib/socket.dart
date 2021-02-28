@@ -1,14 +1,17 @@
 import 'dart:convert';
+import 'socket_impl_stub.dart'
+    if (dart.library.io) 'socket_impl_io.dart'
+    if (dart.library.html) 'socket_impl_web.dart';
 
-import 'package:web_socket_channel/io.dart';
+import 'package:web_socket_channel/web_socket_channel.dart';
 
 import 'swagger/apigrpc.swagger.dart';
 
 class Socket {
-  IOWebSocketChannel channel;
+  WebSocketChannel channel;
   Socket(String uri, Function(dynamic) onMessage) {
-    channel = IOWebSocketChannel.connect(Uri.parse(uri));
-
+    // non-browser
+    channel = initChannel(uri);
     channel.stream.listen(onMessage);
   }
 

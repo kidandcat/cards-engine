@@ -1,7 +1,6 @@
 import 'package:cartas/gameengine.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'gamecard.dart';
 import 'gamestate.dart';
 
 class Dashboard extends StatefulWidget {
@@ -21,12 +20,7 @@ class _DashboardState extends State<Dashboard> {
       () => KeyedSubtree(
         key: c.dashboardKey.value,
         child: Stack(
-          children: [
-            widget.ge.renderUI(context),
-            ...c.cards
-                .map((card) => GameCardWidget(card, card.value.key))
-                .toList()
-          ],
+          children: [widget.ge.renderUI(context), ...c.cards],
         ),
       ),
     );

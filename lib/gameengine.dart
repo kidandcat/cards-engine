@@ -6,7 +6,7 @@ import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'dashboard.dart';
 import 'deck.dart';
-import 'gamecard.dart';
+import 'gamecardv2.dart';
 import 'gamestate.dart';
 import 'networking.dart';
 import 'socket.dart';
@@ -22,7 +22,7 @@ class GameEngine {
   // current match
   int roundCardNumber = 0;
   String matchId;
-  Rx<GameCard> cardSelected;
+  GameCardV2 cardSelected;
   bool gameStarted = false;
   bool waitingForRefresh = false;
   GamePhase phase = GamePhase.BET_READY;
@@ -31,7 +31,7 @@ class GameEngine {
 
   Timer refreshTimer;
   void refreshDashboard() {
-    var shouldNotRefresh = c.cards.any((card) => card.value.isMoving);
+    var shouldNotRefresh = c.cards.any((card) => card.isMoving.value);
     if (shouldNotRefresh) {
       waitingForRefresh = true;
       if (refreshTimer != null) refreshTimer.cancel();
@@ -47,25 +47,25 @@ class GameEngine {
     positions = [
       10,
       context.size.width / 2,
-      context.size.width - GameCard.width - 10
+      context.size.width - GameCardV2.width - 10
     ];
     center = Deck(
       name: 'Table',
       spacingY: 0.2,
       spacingX: 0.2,
-      left: context.size.width / 2 - GameCard.width / 2,
-      top: context.size.height / 2 - GameCard.height / 2,
+      left: context.size.width / 2 - GameCardV2.width / 2,
+      top: context.size.height / 2 - GameCardV2.height / 2,
       refreshDashboard: refreshDashboard,
     );
     hand = GameHand(
       name: 'Hand',
-      left: context.size.width / 2 - GameCard.width / 2,
-      top: context.size.height - GameCard.height - 10,
+      left: context.size.width / 2 - GameCardV2.width / 2,
+      top: context.size.height - GameCardV2.height - 10,
       refreshDashboard: refreshDashboard,
     );
 
     center.onTap = (card) {
-      card.value.flip();
+      card.flip();
     };
 
     hand.onDragUp = (card) {
@@ -121,34 +121,38 @@ class GameEngine {
           phase = GamePhase.BET_READY;
           for (var c in event.data['hand']) {
             roundCardNumber++;
-            hand.newCard(GameCard(
+            hand.newCard(GameCardV2(
               color: Colors.blue,
               suit: c['suit'],
               number: c['number'],
-            ).obs);
+            ));
           }
           var index = 0;
           // add other player's decks
           for (var p in c.players) {
             if (p.user_id == nk.userdata.user.id) continue;
             // create the deck
-            // TODO: reset it on every round may help with leaving players?
-            playerDeks[p.user_id] = Deck(
-              left: positions[index],
-              top: 30,
-              refreshDashboard: refreshDashboard,
-              name: p.username,
-            );
-            // add card
-            var cardForPlayer = GameCard(
-              number: 0,
-              suit: 0,
-              color: Colors.red,
-            ).obs;
-            playerDeks[p.user_id].moveOnTop(cardForPlayer);
-            cardForPlayer.value.flip();
-            index++;
+            if (!playerDeks.containsKey(p.user_id)) {
+              playerDeks[p.user_id] = Deck(
+                left: positions[index],
+                top: 30,
+                refreshDashboard: refreshDashboard,
+                name: p.username,
+              );
+            }
+            for (var c in event.data['hand']) {
+              // add card
+              var cardForPlayer = GameCardV2(
+                number: 0,
+                suit: 0,
+                color: Colors.red,
+              );
+              playerDeks[p.user_id].moveOnTop(cardForPlayer);
+              cardForPlayer.flip();
+              index++;
+            }
           }
+          refreshDashboard();
           Get.defaultDialog(
             title: 'Bet:',
             backgroundColor: Colors.teal[900],
@@ -177,13 +181,13 @@ class GameEngine {
         case OpCodeServer.CARD_PLAYED:
           if (event.data['player'] == nk.userdata.user.id) {
             center.moveOnTop(cardSelected);
-            phase = GamePhase.PLAY_DONE;
+            if (hand.numberOfCards == 0) {
+              phase = GamePhase.PLAY_DONE;
+            }
           } else {
             var cardToPlay = playerDeks[event.data['player']].first();
-            cardToPlay.update((val) {
-              cardToPlay.value.number = event.data['card']['number'];
-              cardToPlay.value.suit = event.data['card']['suit'];
-            });
+            cardToPlay.number.value = event.data['card']['number'];
+            cardToPlay.suit.value = event.data['card']['suit'];
             center.moveOnTop(cardToPlay);
           }
           Get.snackbar('Player Card', json.encode(event.data));

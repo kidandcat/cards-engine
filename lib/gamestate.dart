@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'gamecard.dart';
+import 'gamecardv2.dart';
 import 'socket.dart';
 
 class GameState extends GetxController {
-  var cards = <Rx<GameCard>>[].obs;
+  var cards = <GameCardV2>[].obs;
   var players = <Presence>[].obs;
   var dashboardKey = UniqueKey().obs;
 }

@@ -1,7 +1,7 @@
 import 'package:cartas/config.dart';
-import 'package:cartas/gamecard.dart';
 import 'package:get/get.dart';
 import 'deck.dart';
+import 'gamecardv2.dart';
 
 class GameHand extends Deck {
   double originalLeft;
@@ -10,7 +10,7 @@ class GameHand extends Deck {
     String name,
     double left: 0,
     double top: 0,
-    void Function(Rx<GameCard>) onDragTop,
+    void Function(GameCardV2) onDragTop,
     void Function() refreshDashboard,
   }) : super(
             name: name,
@@ -24,30 +24,30 @@ class GameHand extends Deck {
     };
     onDragLeft = (_) {
       if (!isOpen()) open();
-      super.left = super.left - GameCard.width;
+      super.left = super.left - GameCardV2.width;
       refresh();
     };
     onDragRight = (_) {
       if (!isOpen()) open();
-      super.left = super.left + GameCard.width;
+      super.left = super.left + GameCardV2.width;
       refresh();
     };
     close();
   }
 
   void open() {
-    spacingX = GameCard.width + Config.handCardSpacingBetweenExpanded;
+    spacingX = GameCardV2.width + Config.handCardSpacingBetweenExpanded;
     refresh();
   }
 
   void close() {
-    spacingX = GameCard.width / Config.handCardSpacingBetweenShrinkPercentage;
+    spacingX = GameCardV2.width / Config.handCardSpacingBetweenShrinkPercentage;
     super.left = originalLeft;
     refresh();
   }
 
   bool isOpen() =>
-      GameCard.width + Config.handCardSpacingBetweenExpanded == spacingX;
+      GameCardV2.width + Config.handCardSpacingBetweenExpanded == spacingX;
 
   void toggle() {
     if (isOpen())

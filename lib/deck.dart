@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-import 'gamecard.dart';
+import 'gamecardv2.dart';
 import 'gamestate.dart';
 
 class Deck {
@@ -16,12 +16,12 @@ class Deck {
   bool centerOrigin = false;
 
   // card config
-  void Function(Rx<GameCard>) onTap = (_) {};
-  void Function(Rx<GameCard>) onLongPress = (_) {};
-  void Function(Rx<GameCard>) onDragUp = (_) {};
-  void Function(Rx<GameCard>) onDragDown = (_) {};
-  void Function(Rx<GameCard>) onDragRight = (_) {};
-  void Function(Rx<GameCard>) onDragLeft = (_) {};
+  void Function(GameCardV2) onTap = (_) {};
+  void Function(GameCardV2) onLongPress = (_) {};
+  void Function(GameCardV2) onDragUp = (_) {};
+  void Function(GameCardV2) onDragDown = (_) {};
+  void Function(GameCardV2) onDragRight = (_) {};
+  void Function(GameCardV2) onDragLeft = (_) {};
   double spacingX;
   double spacingY;
   int numberOfCards = 0;
@@ -36,62 +36,58 @@ class Deck {
   });
 
   void refresh() async {
-    var myCards = c.cards.where((card) => card.value.parent == this);
+    var myCards = c.cards.where((card) => card.parent.value == this);
     var index = 0;
     for (var card in myCards) {
-      card.update((val) {
-        val.top = top + spacingY * index;
-        val.left = left + spacingX * index;
-      });
+      card.top.value = top + spacingY * index;
+      card.left.value = left + spacingX * index;
       index++;
     }
   }
 
-  Rx<GameCard> first() {
-    return c.cards.firstWhere((card) => card.value.parent == this);
+  GameCardV2 first() {
+    return c.cards.firstWhere((card) => card.parent.value == this);
   }
 
-  int indexOf(Rx<GameCard> card) {
-    if (card.value.parent != this) throw 'card is not in this Deck';
-    var myCards = c.cards.where((card) => card.value.parent == this).toList();
+  int indexOf(GameCardV2 card) {
+    if (card.parent.value != this) throw 'card is not in this Deck';
+    var myCards = c.cards.where((card) => card.parent.value == this).toList();
     return myCards.indexOf(card);
   }
 
-  void move(Rx<GameCard> card, int index) async {
-    if (card.value.parent == this) throw 'Card already owned by Deck';
+  void move(GameCardV2 card, int index) async {
+    if (card.parent.value == this) throw 'Card already owned by Deck';
     Deck oldParent;
-    card.update((val) {
-      if (val.parent != null) {
-        val.parent.numberOfCards--;
-        val.isMoving = true;
-        val.color = Colors.red;
-      }
-      oldParent = val.parent;
-      val.parent = this;
-      val.top = top + spacingY * index;
-      val.left = left + spacingX * index;
-    });
+    if (card.parent.value != null) {
+      card.parent.value.numberOfCards--;
+      card.isMoving.value = true;
+      card.color.value = Colors.red;
+    }
+    oldParent = card.parent.value;
+    card.parent.value = this;
+    card.top.value = top + spacingY * index;
+    card.left.value = left + spacingX * index;
     numberOfCards++;
     refresh();
     if (oldParent != null) oldParent.refresh();
     refreshDashboard();
   }
 
-  void moveOnTop(Rx<GameCard> card) {
+  void moveOnTop(GameCardV2 card) {
     c.cards.remove(card);
     c.cards.add(card);
     c.cards.refresh();
     move(card, numberOfCards);
   }
 
-  void moveOnBottom(Rx<GameCard> card) {
+  void moveOnBottom(GameCardV2 card) {
     c.cards.remove(card);
     c.cards.insert(0, card);
     c.cards.refresh();
     move(card, 0);
   }
 
-  void newCard(Rx<GameCard> card) {
+  void newCard(GameCardV2 card) {
     c.cards.add(card);
     move(card, numberOfCards);
   }
