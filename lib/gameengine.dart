@@ -1,9 +1,11 @@
 import 'dart:async';
 import 'dart:convert';
 
-import 'package:cartas/gamehand.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
+
+import 'package:cartas/gamehand.dart';
+
 import 'dashboard.dart';
 import 'deck.dart';
 import 'gamecardv2.dart';
@@ -22,6 +24,7 @@ class GameEngine {
   // current match
   int roundCardNumber = 0;
   String matchId;
+  RxString turnPlayerID = ''.obs;
   GameCardV2 cardSelected;
   bool gameStarted = false;
   bool waitingForRefresh = false;
@@ -65,7 +68,7 @@ class GameEngine {
     );
 
     center.onTap = (card) {
-      card.flip();
+      card.upward(!card.isUpward);
     };
 
     hand.onDragUp = (card) {
@@ -148,7 +151,7 @@ class GameEngine {
                 color: Colors.red,
               );
               playerDeks[p.user_id].moveOnTop(cardForPlayer);
-              cardForPlayer.flip();
+              cardForPlayer.upward(false);
               index++;
             }
           }
@@ -190,15 +193,19 @@ class GameEngine {
             cardToPlay.suit.value = event.data['card']['suit'];
             center.moveOnTop(cardToPlay);
           }
-          Get.snackbar('Player Card', json.encode(event.data));
+          turnPlayerID.value = event.data['turn'];
           break;
         case OpCodeServer.PLAY_CARD_PHASE:
           phase = GamePhase.PLAY_READY;
-          Get.snackbar('Player Bet', json.encode(event.data));
+          turnPlayerID.value = event.data['turn'];
           break;
         case OpCodeServer.BET_RECEIVED:
           phase = GamePhase.BET_DONE;
           Get.snackbar('Player Bet', json.encode(event.data));
+          break;
+        case OpCodeServer.TRICK_FINISHED:
+          Get.snackbar('Trick finished', json.encode(event.data));
+          turnPlayerID.value = event.data['turn'];
           break;
         case OpCodeServer.GAME_FINISHED:
           Get.snackbar('Game Finished', json.encode(event.data));
@@ -241,6 +248,9 @@ class GameEngine {
   }
 
   Widget renderUI(BuildContext context) {
-    return Text('UI');
+    return Obx(
+      () => Text(
+          'Turn: ${turnPlayerID.value == nk.userdata.user.id ? 'Your turn!' : turnPlayerID.value}'),
+    );
   }
 }

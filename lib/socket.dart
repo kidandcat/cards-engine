@@ -73,6 +73,7 @@ enum OpCodeServer {
   GAME_FINISHED,
   BET_RECEIVED,
   CARD_PLAYED,
+  TRICK_FINISHED,
 }
 
 /// A response fron a channel join operation.

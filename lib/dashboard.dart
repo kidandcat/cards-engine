@@ -19,6 +19,7 @@ class _DashboardState extends State<Dashboard> {
     return Obx(
       () => KeyedSubtree(
         key: c.dashboardKey.value,
+        // TODO: https://stackoverflow.com/questions/59483051/how-to-use-custommultichildlayout-customsinglechildlayout-in-flutter
         child: Stack(
           children: [widget.ge.renderUI(context), ...c.cards],
         ),
