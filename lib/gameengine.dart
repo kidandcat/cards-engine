@@ -206,6 +206,7 @@ class GameEngine {
         case OpCodeServer.TRICK_FINISHED:
           Get.snackbar('Trick finished', json.encode(event.data));
           turnPlayerID.value = event.data['turn'];
+          refreshDashboard();
           break;
         case OpCodeServer.GAME_FINISHED:
           Get.snackbar('Game Finished', json.encode(event.data));
@@ -249,8 +250,17 @@ class GameEngine {
 
   Widget renderUI(BuildContext context) {
     return Obx(
-      () => Text(
-          'Turn: ${turnPlayerID.value == nk.userdata.user.id ? 'Your turn!' : turnPlayerID.value}'),
+      () => Container(
+        margin: const EdgeInsets.only(top: 80),
+        child: Column(
+          children: [
+            Text(
+              'Turn: ${turnPlayerID.value == nk.userdata.user.id ? 'Your turn!' : turnPlayerID.value}',
+            ),
+            Text('Phase: $phase'),
+          ],
+        ),
+      ),
     );
   }
 }
