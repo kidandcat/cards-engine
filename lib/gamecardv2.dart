@@ -1,18 +1,16 @@
-import 'dart:async';
 import 'dart:math';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'config.dart';
 import 'deck.dart';
-import 'gamestate.dart';
 
 class GameCardV2 extends HookWidget {
   static const double width = 123;
   static const double height = 200;
 
-  GameCardV2({int number, int suit, Color color, Deck parent}) {
+  GameCardV2({int number, int suit, Color color, Deck parent})
+      : super(key: GlobalKey()) {
     this.number.value = number;
     this.suit.value = suit;
     this.color.value = color;
