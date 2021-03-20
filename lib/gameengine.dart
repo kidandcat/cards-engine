@@ -31,6 +31,7 @@ class GameEngine {
   GamePhase phase = GamePhase.BET_READY;
   Map<String, Deck> playerDeks = {};
   List<double> positions;
+  BuildContext context;
 
   Timer refreshTimer;
   void refreshDashboard() {
@@ -46,7 +47,8 @@ class GameEngine {
     c.dashboardKey.value = UniqueKey();
   }
 
-  GameEngine(BuildContext context) {
+  GameEngine(BuildContext _context) {
+    context = _context;
     positions = [
       10,
       context.size.width / 2,
@@ -218,6 +220,57 @@ class GameEngine {
           );
       }
     });
+  }
+
+  void startTest() {
+    center = Deck(
+      name: 'Table',
+      spacingY: 5,
+      spacingX: 5,
+      left: context.size.width / 2 - GameCardV2.width / 2,
+      top: context.size.height / 2 - GameCardV2.height / 2,
+      refreshDashboard: refreshDashboard,
+    );
+    hand = GameHand(
+      name: 'Hand',
+      left: context.size.width / 2 - GameCardV2.width / 2,
+      top: context.size.height - GameCardV2.height - 10,
+      refreshDashboard: refreshDashboard,
+    );
+
+    center.onTap = (card) {
+      card.upward(!card.isUpward);
+    };
+
+    hand.onDragUp = (card) {
+      center.moveOnTop(card);
+    };
+    hand.onDragDown = (card) {
+      center.moveOnBottom(card);
+    };
+    center.onDragUp = (card) {
+      hand.moveOnTop(card);
+    };
+    center.onDragDown = (card) {
+      hand.moveOnBottom(card);
+    };
+
+    for (var i = 0; i < 5; i++) {
+      center.newCard(GameCardV2(
+        color: Colors.blue,
+        suit: i,
+        number: i,
+      ));
+    }
+    for (var i = 0; i < 5; i++) {
+      hand.newCard(GameCardV2(
+        color: Colors.blue,
+        suit: i,
+        number: i,
+      ));
+    }
+    phase = GamePhase.BET_READY;
+    Get.off(Dashboard(this));
   }
 
   void startMatch(String matchId) {

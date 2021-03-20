@@ -45,11 +45,22 @@ class _GameRoomState extends State<GameRoom> {
                 ),
                 Padding(
                   padding: const EdgeInsets.all(30),
-                  child: TextButton(
-                    child: Text('Start'),
-                    onPressed: () {
-                      ge.startMatch(widget.game.matchId);
-                    },
+                  child: Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceAround,
+                    children: [
+                      TextButton(
+                        child: Text('Start'),
+                        onPressed: () {
+                          ge.startMatch(widget.game.matchId);
+                        },
+                      ),
+                      TextButton(
+                        child: Text('Test'),
+                        onPressed: () {
+                          ge.startTest();
+                        },
+                      )
+                    ],
                   ),
                 ),
               ],

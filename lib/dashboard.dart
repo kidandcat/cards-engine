@@ -16,12 +16,22 @@ class _DashboardState extends State<Dashboard> {
 
   @override
   Widget build(BuildContext context) {
-    return Obx(
-      () => KeyedSubtree(
-        key: c.dashboardKey.value,
-        // TODO: https://stackoverflow.com/questions/59483051/how-to-use-custommultichildlayout-customsinglechildlayout-in-flutter
-        child: Stack(
-          children: [widget.ge.renderUI(context), ...c.cards],
+    return Scaffold(
+      body: Container(
+        width: MediaQuery.of(context).size.width,
+        decoration: BoxDecoration(
+          border: Border.all(
+            color: Colors.red,
+            width: 1,
+          ),
+        ),
+        child: Obx(
+          () => KeyedSubtree(
+            key: c.dashboardKey.value,
+            child: Stack(
+              children: [widget.ge.renderUI(context), ...c.cards],
+            ),
+          ),
         ),
       ),
     );
