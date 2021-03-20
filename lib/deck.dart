@@ -38,11 +38,9 @@ class Deck {
   void refresh() async {
     var myCards = c.cards.where((card) => card.parent.value == this).toList();
     var index = 0;
-    myCards.sort((a, b) => (b.elevation.value - a.elevation.value).toInt());
     for (var card in myCards) {
       card.top.value = top + spacingY * index;
       card.left.value = left + spacingX * index;
-      card.elevation.value = (index + 1) * 10;
       index++;
     }
   }
