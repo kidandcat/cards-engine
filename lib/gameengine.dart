@@ -249,10 +249,10 @@ class GameEngine {
       center.moveOnBottom(card);
     };
     center.onDragUp = (card) {
-      hand.moveOnTop(card);
+      hand.moveOnBottom(card);
     };
     center.onDragDown = (card) {
-      hand.moveOnBottom(card);
+      hand.moveOnTop(card);
     };
 
     for (var i = 0; i < 5; i++) {

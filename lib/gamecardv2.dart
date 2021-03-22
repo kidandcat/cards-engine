@@ -20,6 +20,7 @@ class GameCardV2 extends HookWidget {
   AnimationController flipController;
   RxInt number = 0.obs;
   RxInt suit = 0.obs;
+  RxDouble elevation = 0.0.obs;
   Rx<Deck> parent = Rx<Deck>();
   Rx<Color> color = Rx<Color>();
   RxBool isMoving = false.obs;
@@ -98,37 +99,43 @@ class GameCardV2 extends HookWidget {
               ..setEntry(3, 2, 0.002)
               ..rotateY(pi * animationValue),
             child: animationValue <= 0.5
-                ? Container(
-                    width: GameCardV2.width,
-                    height: GameCardV2.height,
-                    decoration: BoxDecoration(
-                      color: color.value,
-                      borderRadius: BorderRadius.all(Radius.circular(5)),
-                      border: Border.all(color: Colors.green, width: 3),
-                    ),
-                    child: Stack(
-                      children: [
-                        Center(
-                          child: Text(
-                            "${number.value}",
-                            style: TextStyle(color: Colors.deepPurple[900]),
+                ? Material(
+                    type: MaterialType.card,
+                    elevation: elevation.value,
+                    child: Container(
+                      width: GameCardV2.width,
+                      height: GameCardV2.height,
+                      decoration: BoxDecoration(
+                        color: color.value,
+                        border: Border.all(color: Colors.green, width: 3),
+                      ),
+                      child: Stack(
+                        children: [
+                          Center(
+                            child: Text(
+                              "${number.value}",
+                              style: TextStyle(color: Colors.deepPurple[900]),
+                            ),
                           ),
-                        ),
-                      ],
+                        ],
+                      ),
                     ),
                   )
-                : Container(
-                    width: GameCardV2.width,
-                    height: GameCardV2.height,
-                    decoration: BoxDecoration(
-                      color: color.value,
-                      borderRadius: BorderRadius.all(Radius.circular(5)),
-                      border: Border.all(color: Colors.green, width: 3),
-                    ),
-                    child: Center(
-                      child: Text(
-                        "The other side",
-                        style: TextStyle(color: Colors.deepPurple[900]),
+                : Material(
+                    type: MaterialType.card,
+                    elevation: elevation.value,
+                    child: Container(
+                      width: GameCardV2.width,
+                      height: GameCardV2.height,
+                      decoration: BoxDecoration(
+                        color: color.value,
+                        border: Border.all(color: Colors.green, width: 3),
+                      ),
+                      child: Center(
+                        child: Text(
+                          "The other side",
+                          style: TextStyle(color: Colors.deepPurple[900]),
+                        ),
                       ),
                     ),
                   ),

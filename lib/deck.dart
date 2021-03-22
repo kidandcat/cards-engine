@@ -41,6 +41,7 @@ class Deck {
     for (var card in myCards) {
       card.top.value = top + spacingY * index;
       card.left.value = left + spacingX * index;
+      card.elevation.value = index.toDouble();
       index++;
     }
   }
