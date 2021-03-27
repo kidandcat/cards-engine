@@ -8,6 +8,7 @@ import 'deck.dart';
 class GameCardV2 extends HookWidget {
   static const double width = 123;
   static const double height = 200;
+  static const double panThreshold = 40;
 
   GameCardV2({int number, int suit, Color color, Deck parent})
       : super(key: GlobalKey()) {
@@ -28,6 +29,9 @@ class GameCardV2 extends HookWidget {
   RxDouble left = 0.0.obs;
   bool isUpward = true;
   List<bool> upwardQueue = <bool>[];
+
+  Offset initialPan = Offset.zero;
+  Offset panOffset = Offset.zero;
 
   void upward(bool yes) {
     if (flipController == null) {
@@ -76,21 +80,19 @@ class GameCardV2 extends HookWidget {
           onTap: () {
             if (!isMoving.value) parent.value.onTap(this);
           },
-          onLongPress: () {
-            parent.value.onLongPress(this);
-          },
-          onVerticalDragEnd: (details) {
-            if (details.primaryVelocity < 0) {
-              parent.value.onDragUp(this);
-            } else {
-              parent.value.onDragDown(this);
-            }
-          },
-          onHorizontalDragEnd: (details) {
-            if (details.primaryVelocity < 0) {
+          onLongPress: () => parent.value.onLongPress(this),
+          onPanStart: (details) => initialPan = details.globalPosition,
+          onPanUpdate: (details) => panOffset = details.globalPosition,
+          onPanEnd: (details) {
+            if (panOffset.dx - initialPan.dx < panThreshold * -1) {
               parent.value.onDragLeft(this);
-            } else {
+            } else if (panOffset.dx - initialPan.dx > panThreshold) {
               parent.value.onDragRight(this);
+            }
+            if (panOffset.dy - initialPan.dy < panThreshold * -1) {
+              parent.value.onDragUp(this);
+            } else if (panOffset.dy - initialPan.dy > panThreshold) {
+              parent.value.onDragDown(this);
             }
           },
           child: Transform(
@@ -122,19 +124,17 @@ class GameCardV2 extends HookWidget {
                     ),
                   )
                 : Material(
-                    type: MaterialType.card,
+                    type: MaterialType.transparency,
                     elevation: elevation.value,
                     child: Container(
                       width: GameCardV2.width,
                       height: GameCardV2.height,
-                      decoration: BoxDecoration(
-                        color: color.value,
-                        border: Border.all(color: Colors.green, width: 3),
-                      ),
                       child: Center(
-                        child: Text(
-                          "The other side",
-                          style: TextStyle(color: Colors.deepPurple[900]),
+                        child: Image.asset(
+                          'assets/back.png',
+                          height: double.infinity,
+                          width: double.infinity,
+                          fit: BoxFit.fill,
                         ),
                       ),
                     ),
