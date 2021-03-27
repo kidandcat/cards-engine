@@ -22,6 +22,12 @@ class Deck {
   void Function(GameCardV2) onDragDown = (_) {};
   void Function(GameCardV2) onDragRight = (_) {};
   void Function(GameCardV2) onDragLeft = (_) {};
+  void Function(GameCardV2) handleTap;
+  void Function(GameCardV2) handleLongPress;
+  void Function(GameCardV2) handleDragUp;
+  void Function(GameCardV2) handleDragDown;
+  void Function(GameCardV2) handleDragRight;
+  void Function(GameCardV2) handleDragLeft;
   double spacingX;
   double spacingY;
   int numberOfCards = 0;
@@ -33,7 +39,18 @@ class Deck {
     this.left: 0,
     this.top: 0,
     this.refreshDashboard,
-  });
+  }) {
+    reloadHandlers();
+  }
+
+  void reloadHandlers() {
+    handleTap = onTap;
+    handleLongPress = onLongPress;
+    handleDragDown = onDragDown;
+    handleDragUp = onDragUp;
+    handleDragLeft = onDragLeft;
+    handleDragRight = onDragRight;
+  }
 
   void refresh() async {
     var myCards = c.cards.where((card) => card.parent.value == this).toList();
@@ -62,7 +79,6 @@ class Deck {
     if (card.parent.value != null) {
       card.parent.value.numberOfCards--;
       card.isMoving.value = true;
-      card.color.value = Colors.red;
     }
     oldParent = card.parent.value;
     card.parent.value = this;

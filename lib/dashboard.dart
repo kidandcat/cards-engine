@@ -1,3 +1,4 @@
+import 'package:cartas/gamecardv2.dart';
 import 'package:cartas/gameengine.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';

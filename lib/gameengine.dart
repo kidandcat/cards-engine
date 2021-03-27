@@ -49,6 +49,7 @@ class GameEngine {
 
   GameEngine(BuildContext _context) {
     context = _context;
+    GameCardV2.precacheImages(context);
     positions = [
       10,
       context.size.width / 2,
@@ -73,6 +74,8 @@ class GameEngine {
       card.upward(!card.isUpward);
     };
 
+    center.reloadHandlers();
+
     hand.onDragUp = (card) {
       print('onDragUp $phase');
       if (phase == GamePhase.PLAY_READY) {
@@ -82,6 +85,7 @@ class GameEngine {
       }
     };
 
+    hand.reloadHandlers();
     refreshDashboard();
 
     nk.socketMatch.stream.listen((event) {
@@ -255,17 +259,20 @@ class GameEngine {
       hand.moveOnTop(card);
     };
 
+    center.reloadHandlers();
+    hand.reloadHandlers();
+
     for (var i = 0; i < 5; i++) {
       center.newCard(GameCardV2(
         color: Colors.blue,
-        suit: i,
+        suit: 1,
         number: i,
       ));
     }
     for (var i = 0; i < 5; i++) {
       hand.newCard(GameCardV2(
         color: Colors.blue,
-        suit: i,
+        suit: 2,
         number: i,
       ));
     }

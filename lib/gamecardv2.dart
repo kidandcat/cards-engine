@@ -9,6 +9,20 @@ class GameCardV2 extends HookWidget {
   static const double width = 123;
   static const double height = 200;
   static const double panThreshold = 40;
+  static Map<String, Image> images = {
+    '0-0': Image.asset('assets/back.png',
+        height: double.infinity, width: double.infinity, fit: BoxFit.fill),
+    '1-1': Image.asset('assets/one.jpg',
+        height: double.infinity, width: double.infinity, fit: BoxFit.fill),
+    '2-1': Image.asset('assets/two.jpg',
+        height: double.infinity, width: double.infinity, fit: BoxFit.fill),
+  };
+
+  static void precacheImages(BuildContext context) {
+    for (var image in images.keys) {
+      precacheImage(images[image].image, context);
+    }
+  }
 
   GameCardV2({int number, int suit, Color color, Deck parent})
       : super(key: GlobalKey()) {
@@ -74,25 +88,24 @@ class GameCardV2 extends HookWidget {
         left: left.value,
         onEnd: () {
           isMoving.value = false;
-          color.value = Colors.blue;
         },
         child: GestureDetector(
           onTap: () {
-            if (!isMoving.value) parent.value.onTap(this);
+            if (!isMoving.value) parent.value.handleTap(this);
           },
-          onLongPress: () => parent.value.onLongPress(this),
+          onLongPress: () => parent.value.handleLongPress(this),
           onPanStart: (details) => initialPan = details.globalPosition,
           onPanUpdate: (details) => panOffset = details.globalPosition,
           onPanEnd: (details) {
             if (panOffset.dx - initialPan.dx < panThreshold * -1) {
-              parent.value.onDragLeft(this);
+              parent.value.handleDragLeft(this);
             } else if (panOffset.dx - initialPan.dx > panThreshold) {
-              parent.value.onDragRight(this);
+              parent.value.handleDragRight(this);
             }
             if (panOffset.dy - initialPan.dy < panThreshold * -1) {
-              parent.value.onDragUp(this);
+              parent.value.handleDragUp(this);
             } else if (panOffset.dy - initialPan.dy > panThreshold) {
-              parent.value.onDragDown(this);
+              parent.value.handleDragDown(this);
             }
           },
           child: Transform(
@@ -107,17 +120,12 @@ class GameCardV2 extends HookWidget {
                     child: Container(
                       width: GameCardV2.width,
                       height: GameCardV2.height,
-                      decoration: BoxDecoration(
-                        color: color.value,
-                        border: Border.all(color: Colors.green, width: 3),
-                      ),
                       child: Stack(
                         children: [
                           Center(
-                            child: Text(
-                              "${number.value}",
-                              style: TextStyle(color: Colors.deepPurple[900]),
-                            ),
+                            child: images.containsKey('$suit-$number')
+                                ? images['$suit-$number']
+                                : images['0-0'],
                           ),
                         ],
                       ),

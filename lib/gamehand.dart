@@ -5,6 +5,7 @@ import 'gamecardv2.dart';
 
 class GameHand extends Deck {
   double originalLeft;
+  int draggedPosition = 0;
 
   GameHand({
     String name,
@@ -19,30 +20,64 @@ class GameHand extends Deck {
             refreshDashboard: refreshDashboard) {
     spacingY = 0;
     originalLeft = left;
-    onTap = (_) {
+    reloadHandlers();
+    close();
+  }
+
+  @override
+  void reloadHandlers() {
+    handleTap = (card) {
+      toggle();
+      onTap(card);
+    };
+    handleDragLeft = (card) {
+      dragLeft();
+      onDragLeft(card);
+    };
+    handleDragRight = (card) {
+      dragRight();
+      onDragRight(card);
+    };
+    handleDragUp = (card) async {
+      onDragUp(card);
+      await Future.delayed(Duration(milliseconds: 500));
       toggle();
     };
-    onDragLeft = (_) {
-      if (!isOpen()) open();
-      super.left = super.left - GameCardV2.width;
-      refresh();
+    handleDragDown = (card) async {
+      onDragDown(card);
+      await Future.delayed(Duration(milliseconds: 500));
+      toggle();
     };
-    onDragRight = (_) {
-      if (!isOpen()) open();
-      super.left = super.left + GameCardV2.width;
-      refresh();
-    };
-    close();
   }
 
   void open() {
     spacingX = GameCardV2.width + Config.handCardSpacingBetweenExpanded;
+    draggedPosition = 0;
+    for (var i = 0; i < (numberOfCards - 1) / 2; i++) {
+      dragLeft();
+    }
     refresh();
   }
 
   void close() {
     spacingX = GameCardV2.width / Config.handCardSpacingBetweenShrinkPercentage;
     super.left = originalLeft;
+    refresh();
+  }
+
+  void dragRight() {
+    if (!isOpen()) open();
+    if (draggedPosition <= 0) return;
+    draggedPosition--;
+    super.left = super.left + GameCardV2.width;
+    refresh();
+  }
+
+  void dragLeft() {
+    if (!isOpen()) open();
+    if (draggedPosition >= numberOfCards - 1) return;
+    draggedPosition++;
+    super.left = super.left - GameCardV2.width;
     refresh();
   }
 
