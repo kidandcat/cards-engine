@@ -267,7 +267,7 @@ class GameEngine {
         color: Colors.blue,
         suit: 1,
         number: i,
-      ));
+      ).upward(false));
     }
     for (var i = 0; i < 5; i++) {
       hand.newCard(GameCardV2(
@@ -311,13 +311,19 @@ class GameEngine {
   Widget renderUI(BuildContext context) {
     return Obx(
       () => Container(
-        margin: const EdgeInsets.only(top: 80),
+        width: MediaQuery.of(context).size.width,
+        margin: const EdgeInsets.only(top: 20),
         child: Column(
           children: [
-            Text(
-              'Turn: ${turnPlayerID.value == nk.userdata.user.id ? 'Your turn!' : turnPlayerID.value}',
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                Text(
+                  'Turn: ${turnPlayerID.value == nk.userdata.user.id ? 'Your turn!' : turnPlayerID.value}',
+                ),
+                Text('$phase'),
+              ],
             ),
-            Text('Phase: $phase'),
           ],
         ),
       ),

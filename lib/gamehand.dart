@@ -42,10 +42,12 @@ class GameHand extends Deck {
       onDragUp(card);
       await Future.delayed(Duration(milliseconds: 500));
       toggle();
+      toggle();
     };
     handleDragDown = (card) async {
       onDragDown(card);
       await Future.delayed(Duration(milliseconds: 500));
+      toggle();
       toggle();
     };
   }

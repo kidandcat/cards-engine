@@ -10,11 +10,29 @@ class GameCardV2 extends HookWidget {
   static const double height = 200;
   static const double panThreshold = 40;
   static Map<String, Image> images = {
-    '0-0': Image.asset('assets/back.png',
+    'back': Image.asset('assets/00 Reverso.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '1-1': Image.asset('assets/one.jpg',
+    'empty': Image.asset('assets/00 Plantilla.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '2-1': Image.asset('assets/two.jpg',
+    '1-1': Image.asset('assets/The Arrow.jpg',
+        height: double.infinity, width: double.infinity, fit: BoxFit.fill),
+    '1-2': Image.asset('assets/The Big.jpg',
+        height: double.infinity, width: double.infinity, fit: BoxFit.fill),
+    '1-3': Image.asset('assets/The Bubbles.jpg',
+        height: double.infinity, width: double.infinity, fit: BoxFit.fill),
+    '1-4': Image.asset('assets/The Change.jpg',
+        height: double.infinity, width: double.infinity, fit: BoxFit.fill),
+    '1-5': Image.asset('assets/The Cloud.jpg',
+        height: double.infinity, width: double.infinity, fit: BoxFit.fill),
+    '1-6': Image.asset('assets/The Create.jpg',
+        height: double.infinity, width: double.infinity, fit: BoxFit.fill),
+    '1-7': Image.asset('assets/The Dark.jpg',
+        height: double.infinity, width: double.infinity, fit: BoxFit.fill),
+    '1-8': Image.asset('assets/The Dash.jpg',
+        height: double.infinity, width: double.infinity, fit: BoxFit.fill),
+    '1-9': Image.asset('assets/The Dream.jpg',
+        height: double.infinity, width: double.infinity, fit: BoxFit.fill),
+    '2-1': Image.asset('assets/The Earthy.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
   };
 
@@ -47,10 +65,10 @@ class GameCardV2 extends HookWidget {
   Offset initialPan = Offset.zero;
   Offset panOffset = Offset.zero;
 
-  void upward(bool yes) {
+  GameCardV2 upward(bool yes) {
     if (flipController == null) {
       upwardQueue.add(yes);
-      return;
+      return this;
     }
     if (yes && !isUpward) {
       flipController.reverse();
@@ -59,6 +77,7 @@ class GameCardV2 extends HookWidget {
       flipController.forward();
       isUpward = false;
     }
+    return this;
   }
 
   @override
@@ -125,7 +144,7 @@ class GameCardV2 extends HookWidget {
                           Center(
                             child: images.containsKey('$suit-$number')
                                 ? images['$suit-$number']
-                                : images['0-0'],
+                                : images['empty'],
                           ),
                         ],
                       ),
@@ -138,12 +157,7 @@ class GameCardV2 extends HookWidget {
                       width: GameCardV2.width,
                       height: GameCardV2.height,
                       child: Center(
-                        child: Image.asset(
-                          'assets/back.png',
-                          height: double.infinity,
-                          width: double.infinity,
-                          fit: BoxFit.fill,
-                        ),
+                        child: images['back'],
                       ),
                     ),
                   ),
