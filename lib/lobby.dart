@@ -1,3 +1,4 @@
+import 'package:cartas/modals.dart';
 import 'package:cartas/room.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -49,23 +50,22 @@ class _LobbyState extends State<Lobby> {
                 ),
                 Center(child: Text('Lobby')),
                 TextButton(
+                  key: Key('lobby_create'),
                   child: Text('Create'),
                   onPressed: () async {
                     try {
                       Get.defaultDialog(
-                        title: 'Name:',
-                        backgroundColor: Colors.teal[900],
-                        content: Container(
-                          color: Colors.teal[900],
-                          child: TextField(
-                            onSubmitted: (value) async {
-                              await nk.createMatch(value);
-                              refreshMatches();
-                              Get.back();
-                            },
-                          ),
-                        ),
-                      );
+                          title: 'Name:',
+                          backgroundColor: Colors.teal[900],
+                          content: Modal(
+                            child: ModalPartRoomName(
+                              onSubmit: (value) async {
+                                await nk.createMatch(value);
+                                refreshMatches();
+                                Get.back();
+                              },
+                            ),
+                          ));
                     } on String catch (e) {
                       Get.defaultDialog(title: e);
                     }
@@ -101,6 +101,7 @@ class _LobbyState extends State<Lobby> {
                           ),
                           Text('size: ${matches[index].size}'),
                           TextButton(
+                            key: Key('room_${matches[index].label}'),
                             child: Text('Join'),
                             onPressed: () {
                               try {

@@ -34,6 +34,7 @@ class _LoginState extends State<Login> {
                 child: Column(
                   children: [
                     TextField(
+                      key: Key('email'),
                       autofillHints: ['email'],
                       onChanged: (value) => email = value,
                       decoration: InputDecoration(
@@ -41,6 +42,7 @@ class _LoginState extends State<Login> {
                       ),
                     ),
                     TextField(
+                      key: Key('password'),
                       obscureText: true,
                       onChanged: (value) => password = value,
                       decoration: InputDecoration(
@@ -57,6 +59,7 @@ class _LoginState extends State<Login> {
                     Padding(
                       padding: const EdgeInsets.all(12),
                       child: TextButton(
+                        key: Key('login_button'),
                         child: Text('Log in'),
                         onPressed: onLoginPress,
                       ),

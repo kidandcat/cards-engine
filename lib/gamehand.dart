@@ -1,5 +1,4 @@
 import 'package:cartas/config.dart';
-import 'package:get/get.dart';
 import 'deck.dart';
 import 'gamecardv2.dart';
 

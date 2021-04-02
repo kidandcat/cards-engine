@@ -20,12 +20,6 @@ class _DashboardState extends State<Dashboard> {
     return Scaffold(
       body: Container(
         width: MediaQuery.of(context).size.width,
-        decoration: BoxDecoration(
-          border: Border.all(
-            color: Colors.red,
-            width: 1,
-          ),
-        ),
         child: Obx(
           () => KeyedSubtree(
             key: c.dashboardKey.value,

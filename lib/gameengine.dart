@@ -10,6 +10,7 @@ import 'dashboard.dart';
 import 'deck.dart';
 import 'gamecardv2.dart';
 import 'gamestate.dart';
+import 'modals.dart';
 import 'networking.dart';
 import 'socket.dart';
 
@@ -165,24 +166,14 @@ class GameEngine {
           Get.defaultDialog(
             title: 'Bet:',
             backgroundColor: Colors.teal[900],
-            content: Container(
-              width: 300,
-              height: 300,
-              color: Colors.teal[900],
-              child: ListView.builder(
-                itemCount: roundCardNumber + 1,
-                itemBuilder: (context, index) => ListTile(
-                  title: Text('$index'),
-                  leading: Radio(
-                    groupValue: -1,
-                    value: index,
-                    onChanged: (int value) {
-                      assert(phase == GamePhase.BET_READY);
-                      playBet(event.matchId, value);
-                      Get.back();
-                    },
-                  ),
-                ),
+            content: Modal(
+              child: ModalPartBet(
+                maxBet: roundCardNumber + 1,
+                onBet: (bet) {
+                  assert(phase == GamePhase.BET_READY);
+                  playBet(event.matchId, bet);
+                  Get.back();
+                },
               ),
             ),
           );
@@ -198,6 +189,7 @@ class GameEngine {
             cardToPlay.number.value = event.data['card']['number'];
             cardToPlay.suit.value = event.data['card']['suit'];
             center.moveOnTop(cardToPlay);
+            cardToPlay.upward(true);
           }
           turnPlayerID.value = event.data['turn'];
           break;
@@ -207,15 +199,18 @@ class GameEngine {
           break;
         case OpCodeServer.BET_RECEIVED:
           phase = GamePhase.BET_DONE;
-          Get.snackbar('Player Bet', json.encode(event.data));
+          Get.snackbar('Player Bet', json.encode(event.data),
+              duration: Duration(seconds: 30));
           break;
         case OpCodeServer.TRICK_FINISHED:
-          Get.snackbar('Trick finished', json.encode(event.data));
+          Get.snackbar('Trick finished', json.encode(event.data),
+              duration: Duration(seconds: 30));
           turnPlayerID.value = event.data['turn'];
           refreshDashboard();
           break;
         case OpCodeServer.GAME_FINISHED:
-          Get.snackbar('Game Finished', json.encode(event.data));
+          Get.snackbar('Game Finished', json.encode(event.data),
+              duration: Duration(seconds: 30));
           break;
         default:
           assert(
@@ -319,9 +314,14 @@ class GameEngine {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(
-                  'Turn: ${turnPlayerID.value == nk.userdata.user.id ? 'Your turn!' : turnPlayerID.value}',
+                  turnPlayerID.value == nk.userdata.user.id
+                      ? 'Your turn!'
+                      : 'Waiting other players',
+                  style: TextStyle(
+                    fontSize: 30,
+                    fontWeight: FontWeight.bold,
+                  ),
                 ),
-                Text('$phase'),
               ],
             ),
           ],
