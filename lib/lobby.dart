@@ -91,11 +91,19 @@ class _LobbyState extends State<Lobby> {
                         mainAxisAlignment: MainAxisAlignment.spaceAround,
                         children: [
                           Container(
+                            width: MediaQuery.of(context).size.width * 0.5,
                             padding: const EdgeInsets.only(right: 20),
-                            child: Text(
-                              matches[index].label,
-                              style: TextStyle(
-                                fontSize: 20,
+                            child: SingleChildScrollView(
+                              scrollDirection: Axis.horizontal,
+                              child: Row(
+                                children: [
+                                  Text(
+                                    matches[index].label,
+                                    style: TextStyle(
+                                      fontSize: 20,
+                                    ),
+                                  ),
+                                ],
                               ),
                             ),
                           ),

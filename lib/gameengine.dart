@@ -30,6 +30,7 @@ class GameEngine {
   bool gameStarted = false;
   bool waitingForRefresh = false;
   GamePhase phase = GamePhase.BET_READY;
+  int betPlaced = -1;
   Map<String, Deck> playerDeks = {};
   List<double> positions;
   BuildContext context;
@@ -123,6 +124,7 @@ class GameEngine {
           break;
         case OpCodeServer.BET_PHASE:
           roundCardNumber = 0;
+          betPlaced = -1;
           if (!gameStarted) {
             Get.off(Dashboard(this));
             matchId = event.matchId;
@@ -163,22 +165,10 @@ class GameEngine {
             }
           }
           refreshDashboard();
-          Get.defaultDialog(
-            title: 'Bet:',
-            backgroundColor: Colors.teal[900],
-            content: Modal(
-              child: ModalPartBet(
-                maxBet: roundCardNumber + 1,
-                onBet: (bet) {
-                  assert(phase == GamePhase.BET_READY);
-                  playBet(event.matchId, bet);
-                  Get.back();
-                },
-              ),
-            ),
-          );
+          // TODO add animation "play your bets!"
           break;
         case OpCodeServer.CARD_PLAYED:
+          // TODO: show who played, add animation
           if (event.data['player'] == nk.userdata.user.id) {
             center.moveOnTop(cardSelected);
             if (hand.numberOfCards == 0) {
@@ -192,25 +182,26 @@ class GameEngine {
             cardToPlay.upward(true);
           }
           turnPlayerID.value = event.data['turn'];
+          refreshDashboard();
           break;
         case OpCodeServer.PLAY_CARD_PHASE:
           phase = GamePhase.PLAY_READY;
           turnPlayerID.value = event.data['turn'];
+          refreshDashboard();
           break;
         case OpCodeServer.BET_RECEIVED:
           phase = GamePhase.BET_DONE;
-          Get.snackbar('Player Bet', json.encode(event.data),
-              duration: Duration(seconds: 30));
+          Get.snackbar('Player Bet', json.encode(event.data));
+          refreshDashboard();
           break;
         case OpCodeServer.TRICK_FINISHED:
-          Get.snackbar('Trick finished', json.encode(event.data),
-              duration: Duration(seconds: 30));
+          Get.snackbar('Trick finished', json.encode(event.data));
           turnPlayerID.value = event.data['turn'];
           refreshDashboard();
           break;
         case OpCodeServer.GAME_FINISHED:
-          Get.snackbar('Game Finished', json.encode(event.data),
-              duration: Duration(seconds: 30));
+          Get.snackbar('Game Finished', json.encode(event.data));
+          refreshDashboard();
           break;
         default:
           assert(
@@ -303,9 +294,9 @@ class GameEngine {
     nk.socket.send(ms);
   }
 
-  Widget renderUI(BuildContext context) {
-    return Obx(
-      () => Container(
+  List<Widget> renderUI(BuildContext context) {
+    return [
+      Container(
         width: MediaQuery.of(context).size.width,
         margin: const EdgeInsets.only(top: 20),
         child: Column(
@@ -314,9 +305,11 @@ class GameEngine {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Text(
-                  turnPlayerID.value == nk.userdata.user.id
-                      ? 'Your turn!'
-                      : 'Waiting other players',
+                  phase == GamePhase.BET_READY
+                      ? 'Place your bet!'
+                      : turnPlayerID.value == nk.userdata.user.id
+                          ? 'Play your card!'
+                          : 'Waiting others',
                   style: TextStyle(
                     fontSize: 30,
                     fontWeight: FontWeight.bold,
@@ -327,6 +320,32 @@ class GameEngine {
           ],
         ),
       ),
-    );
+      if (phase == GamePhase.BET_READY && betPlaced == -1)
+        Positioned(
+          right: 20,
+          bottom: 20,
+          child: TextButton(
+            child: Text('Bet'),
+            onPressed: () {
+              Get.defaultDialog(
+                title: 'Bet:',
+                backgroundColor: Colors.teal[900],
+                content: Modal(
+                  child: ModalPartBet(
+                    maxBet: roundCardNumber + 1,
+                    onBet: (bet) {
+                      assert(phase == GamePhase.BET_READY);
+                      playBet(matchId, bet);
+                      betPlaced = bet;
+                      Get.back();
+                      refreshDashboard();
+                    },
+                  ),
+                ),
+              );
+            },
+          ),
+        )
+    ];
   }
 }

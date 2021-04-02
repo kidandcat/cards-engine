@@ -31,30 +31,39 @@ class _ModalPartBetState extends State<ModalPartBet> {
 
   @override
   Widget build(BuildContext context) {
-    return Column(
-      children: [
-        ListView.builder(
-          shrinkWrap: true,
-          itemCount: widget.maxBet,
-          itemBuilder: (context, index) => ListTile(
-            title: Text('$index'),
-            leading: Radio(
-              groupValue: 0,
-              value: index,
-              onChanged: (value) {
-                setState(() {
-                  selectedBet = value;
-                });
-              },
+    return Container(
+      height: MediaQuery.of(context).size.height * 0.7,
+      width: MediaQuery.of(context).size.width * 0.7,
+      child: Column(
+        children: [
+          SingleChildScrollView(
+            child: Container(
+              height: MediaQuery.of(context).size.height * 0.7 - 40,
+              child: ListView.builder(
+                shrinkWrap: true,
+                itemCount: widget.maxBet,
+                itemBuilder: (context, index) => ListTile(
+                  title: Text('$index'),
+                  leading: Radio(
+                    groupValue: selectedBet,
+                    value: index,
+                    onChanged: (value) {
+                      setState(() {
+                        selectedBet = value;
+                      });
+                    },
+                  ),
+                ),
+              ),
             ),
           ),
-        ),
-        TextButton(
-          key: Key('submit_bet'),
-          onPressed: () => widget.onBet(selectedBet),
-          child: Text('Submit'),
-        )
-      ],
+          TextButton(
+            key: Key('submit_bet'),
+            onPressed: () => widget.onBet(selectedBet),
+            child: Text('Submit'),
+          )
+        ],
+      ),
     );
   }
 }

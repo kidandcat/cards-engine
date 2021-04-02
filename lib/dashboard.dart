@@ -24,7 +24,7 @@ class _DashboardState extends State<Dashboard> {
           () => KeyedSubtree(
             key: c.dashboardKey.value,
             child: Stack(
-              children: [...c.cards, widget.ge.renderUI(context)],
+              children: [...c.cards, ...widget.ge.renderUI(context)],
             ),
           ),
         ),
