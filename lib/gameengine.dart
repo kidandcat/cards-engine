@@ -66,7 +66,7 @@ class GameEngine {
       refreshDashboard: refreshDashboard,
     );
     hand = GameHand(
-      name: 'Hand',
+      name: nk.userdata.user.username,
       left: context.size.width / 2 - GameCardV2.width / 2,
       top: context.size.height - GameCardV2.height - 10,
       refreshDashboard: refreshDashboard,
@@ -140,9 +140,14 @@ class GameEngine {
             ));
           }
           var index = 0;
+
           // add other player's decks
           for (var p in c.players) {
-            if (p.user_id == nk.userdata.user.id) continue;
+            if (p.user_id == nk.userdata.user.id) {
+              // update player points
+              hand.points = event.data['points'][p.user_id];
+              continue;
+            }
             // create the deck
             if (!playerDeks.containsKey(p.user_id)) {
               playerDeks[p.user_id] = Deck(
@@ -150,6 +155,7 @@ class GameEngine {
                 top: 30,
                 refreshDashboard: refreshDashboard,
                 name: p.username,
+                playerId: p.user_id,
               );
             }
             for (var c in event.data['hand']) {
@@ -163,6 +169,7 @@ class GameEngine {
               cardForPlayer.upward(false);
               index++;
             }
+            playerDeks[p.user_id].points = event.data['points'][p.user_id];
           }
           refreshDashboard();
           // TODO add animation "play your bets!"
@@ -191,16 +198,13 @@ class GameEngine {
           break;
         case OpCodeServer.BET_RECEIVED:
           phase = GamePhase.BET_DONE;
-          Get.snackbar('Player Bet', json.encode(event.data));
           refreshDashboard();
           break;
         case OpCodeServer.TRICK_FINISHED:
-          Get.snackbar('Trick finished', json.encode(event.data));
           turnPlayerID.value = event.data['turn'];
           refreshDashboard();
           break;
         case OpCodeServer.GAME_FINISHED:
-          Get.snackbar('Game Finished', json.encode(event.data));
           refreshDashboard();
           break;
         default:
@@ -321,12 +325,10 @@ class GameEngine {
         ),
       ),
       if (phase == GamePhase.BET_READY && betPlaced == -1)
-        Positioned(
-          right: 20,
-          bottom: 20,
-          child: TextButton(
-            child: Text('Bet'),
-            onPressed: () {
+        Align(
+          alignment: Alignment.center,
+          child: GestureDetector(
+            onTap: () {
               Get.defaultDialog(
                 title: 'Bet:',
                 backgroundColor: Colors.teal[900],
@@ -344,8 +346,42 @@ class GameEngine {
                 ),
               );
             },
+            child: Container(
+              decoration: BoxDecoration(
+                image: DecorationImage(
+                  centerSlice: Rect.fromLTRB(20, 20, 43, 43),
+                  image: AssetImage('assets/circle.png'),
+                ),
+              ),
+              child: Container(
+                margin: const EdgeInsets.all(30),
+                child: Text('Make your bet!'),
+              ),
+            ),
           ),
         )
     ];
+  }
+}
+
+class CurvePainter extends CustomPainter {
+  @override
+  void paint(Canvas canvas, Size size) {
+    var paint = Paint()
+      ..color = Color(0xFFE32087)
+      ..style = PaintingStyle.fill;
+
+    var path = Path()
+      ..moveTo(size.width * 0.2, 0)
+      ..lineTo(size.width, size.height * 0.2)
+      ..lineTo(size.width, size.height)
+      ..lineTo(0, size.height);
+
+    canvas.drawPath(path, paint);
+  }
+
+  @override
+  bool shouldRepaint(CustomPainter oldDelegate) {
+    return true;
   }
 }

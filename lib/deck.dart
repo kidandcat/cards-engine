@@ -6,7 +6,9 @@ import 'gamestate.dart';
 class Deck {
   final GameState c = Get.put(GameState());
 
-  String name;
+  String playerId;
+  String name = '';
+  int points = 0;
 
   Function refreshDashboard;
 
@@ -33,6 +35,7 @@ class Deck {
   int numberOfCards = 0;
 
   Deck({
+    this.playerId,
     this.name,
     this.spacingX: 3,
     this.spacingY: 3,
@@ -107,5 +110,21 @@ class Deck {
   void newCard(GameCardV2 card) {
     c.cards.add(card);
     move(card, numberOfCards);
+  }
+
+  Widget renderUI(BuildContext context) {
+    return Positioned(
+      top: top + GameCardV2.height + 10,
+      left: left - 5,
+      child: Container(
+        width: GameCardV2.width + 10,
+        child: Column(
+          children: [
+            Text(name, softWrap: false),
+            Text('$points', softWrap: false),
+          ],
+        ),
+      ),
+    );
   }
 }

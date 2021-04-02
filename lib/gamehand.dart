@@ -1,4 +1,5 @@
 import 'package:cartas/config.dart';
+import 'package:flutter/material.dart';
 import 'deck.dart';
 import 'gamecardv2.dart';
 
@@ -91,5 +92,22 @@ class GameHand extends Deck {
     else
       open();
     refresh();
+  }
+
+  @override
+  Widget renderUI(BuildContext context) {
+    return Positioned(
+      top: top - 40,
+      left: left - 5,
+      child: Container(
+        width: GameCardV2.width + 10,
+        child: Column(
+          children: [
+            Text('$points', softWrap: false),
+            Text(name, softWrap: false),
+          ],
+        ),
+      ),
+    );
   }
 }

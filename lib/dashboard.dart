@@ -1,4 +1,3 @@
-import 'package:cartas/gamecardv2.dart';
 import 'package:cartas/gameengine.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
@@ -24,7 +23,14 @@ class _DashboardState extends State<Dashboard> {
           () => KeyedSubtree(
             key: c.dashboardKey.value,
             child: Stack(
-              children: [...c.cards, ...widget.ge.renderUI(context)],
+              children: [
+                ...c.cards,
+                ...widget.ge.renderUI(context),
+                ...widget.ge.playerDeks.values
+                    .map((deck) => deck.renderUI(context))
+                    .toList(),
+                widget.ge.hand.renderUI(context),
+              ],
             ),
           ),
         ),
