@@ -1,15 +1,12 @@
 import 'dart:async';
-import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
-
 import 'package:cartas/gamehand.dart';
-
 import 'dashboard.dart';
 import 'deck.dart';
 import 'gamecardv2.dart';
 import 'gamestate.dart';
+import 'lobby.dart';
 import 'modals.dart';
 import 'networking.dart';
 import 'socket.dart';
@@ -205,6 +202,18 @@ class GameEngine {
           refreshDashboard();
           break;
         case OpCodeServer.GAME_FINISHED:
+          Get.defaultDialog(
+            title: 'The winner is',
+            backgroundColor: Colors.teal[900],
+            content: Modal(
+              child: ModalPartFinished(
+                name: event.data['winner']['username'],
+                onSubmit: () {
+                  Get.off(Lobby());
+                },
+              ),
+            ),
+          );
           refreshDashboard();
           break;
         default:
@@ -361,27 +370,5 @@ class GameEngine {
           ),
         )
     ];
-  }
-}
-
-class CurvePainter extends CustomPainter {
-  @override
-  void paint(Canvas canvas, Size size) {
-    var paint = Paint()
-      ..color = Color(0xFFE32087)
-      ..style = PaintingStyle.fill;
-
-    var path = Path()
-      ..moveTo(size.width * 0.2, 0)
-      ..lineTo(size.width, size.height * 0.2)
-      ..lineTo(size.width, size.height)
-      ..lineTo(0, size.height);
-
-    canvas.drawPath(path, paint);
-  }
-
-  @override
-  bool shouldRepaint(CustomPainter oldDelegate) {
-    return true;
   }
 }

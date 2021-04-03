@@ -107,37 +107,23 @@ class _ModalPartRoomNameState extends State<ModalPartRoomName> {
   }
 }
 
-class ModalPartFinished extends StatefulWidget {
-  final Function(String bet) onSubmit;
-
-  const ModalPartFinished({Key key, this.onSubmit}) : super(key: key);
-
-  @override
-  _ModalPartFinishedState createState() => _ModalPartFinishedState();
-}
-
-class _ModalPartFinishedState extends State<ModalPartFinished> {
-  var name;
+class ModalPartFinished extends StatelessWidget {
+  final String name;
+  final Function() onSubmit;
+  const ModalPartFinished({this.name, this.onSubmit});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       child: Column(
         children: [
-          TextField(
-            key: Key('finished_name'),
-            onChanged: (val) {
-              setState(() {
-                name = val;
-              });
-            },
-          ),
+          Text(name),
           Container(
             margin: const EdgeInsets.only(top: 20),
             child: TextButton(
-              key: Key('submit_name'),
-              onPressed: () => widget.onSubmit(name),
-              child: Text('Submit'),
+              key: Key('submit_finish'),
+              onPressed: () => onSubmit(),
+              child: Text('End'),
             ),
           )
         ],

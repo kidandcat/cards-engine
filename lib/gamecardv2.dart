@@ -14,25 +14,23 @@ class GameCardV2 extends HookWidget {
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
     'empty': Image.asset('assets/00 Plantilla.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '1-1': Image.asset('assets/The Arrow.jpg',
+    '0': Image.asset('assets/The Arrow.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '1-2': Image.asset('assets/The Big.jpg',
+    '1': Image.asset('assets/The Arrow.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '1-3': Image.asset('assets/The Bubbles.jpg',
+    '2': Image.asset('assets/The Big.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '1-4': Image.asset('assets/The Change.jpg',
+    '3': Image.asset('assets/The Bubbles.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '1-5': Image.asset('assets/The Cloud.jpg',
+    '4': Image.asset('assets/The Change.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '1-6': Image.asset('assets/The Create.jpg',
+    '5': Image.asset('assets/The Change.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '1-7': Image.asset('assets/The Dark.jpg',
+    '6': Image.asset('assets/The Change.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '1-8': Image.asset('assets/The Dash.jpg',
+    '7': Image.asset('assets/The Change.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '1-9': Image.asset('assets/The Dream.jpg',
-        height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '2-1': Image.asset('assets/The Earthy.jpg',
+    '8': Image.asset('assets/The Change.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
   };
 
@@ -142,9 +140,47 @@ class GameCardV2 extends HookWidget {
                       child: Stack(
                         children: [
                           Center(
-                            child: images.containsKey('$suit-$number')
-                                ? images['$suit-$number']
+                            child: images.containsKey('$suit')
+                                ? images['$suit']
                                 : images['empty'],
+                          ),
+                          Positioned(
+                            top: 10,
+                            left: 10,
+                            child: number.value == 0
+                                ? Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Colors.teal[900],
+                                    ),
+                                    padding: const EdgeInsets.all(5),
+                                    child: Builder(
+                                      builder: (context) {
+                                        switch (suit.value) {
+                                          case 0:
+                                            return Text('WHITE FLAG');
+                                          case 5:
+                                            return Text('MERMAID');
+                                          case 6:
+                                            return Text('PIRATE');
+                                          case 7:
+                                            return Text('SCARY_PIGGY');
+                                          case 8:
+                                            return Text('PIG_KING');
+                                          default:
+                                            return Text('Unknown');
+                                        }
+                                      },
+                                    ),
+                                  )
+                                : Container(
+                                    decoration: BoxDecoration(
+                                      borderRadius: BorderRadius.circular(10),
+                                      color: Colors.teal[900],
+                                    ),
+                                    padding: const EdgeInsets.all(5),
+                                    child: Text('$number/$suit'),
+                                  ),
                           ),
                         ],
                       ),
