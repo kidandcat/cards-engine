@@ -3,6 +3,7 @@ import 'package:cartas/room.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
+import 'gamestate.dart';
 import 'networking.dart';
 import 'swagger/apigrpc.swagger.dart';
 
@@ -13,6 +14,7 @@ class Lobby extends StatefulWidget {
 
 class _LobbyState extends State<Lobby> {
   final Networking nk = Networking();
+  final GameState c = Get.put(GameState(), permanent: true);
   List<ApiMatch> matches;
 
   @override
@@ -34,101 +36,112 @@ class _LobbyState extends State<Lobby> {
 
   @override
   Widget build(BuildContext context) => Scaffold(
-          body: Column(
-        children: [
-          Container(
-            margin: const EdgeInsets.only(top: 15),
-            child: Row(
-              mainAxisAlignment: MainAxisAlignment.spaceAround,
-              children: [
-                IconButton(
-                  icon: Icon(
-                    Icons.refresh,
+        body: Column(
+          children: [
+            Container(
+              margin: const EdgeInsets.only(top: 15),
+              child: Row(
+                mainAxisAlignment: MainAxisAlignment.spaceAround,
+                children: [
+                  IconButton(
+                    icon: Icon(
+                      Icons.refresh,
+                    ),
+                    color: Colors.white,
+                    onPressed: refreshMatches,
                   ),
-                  color: Colors.white,
-                  onPressed: refreshMatches,
-                ),
-                Center(child: Text('Lobby')),
-                TextButton(
-                  key: Key('lobby_create'),
-                  child: Text('Create'),
-                  onPressed: () async {
-                    try {
-                      Get.defaultDialog(
-                          title: 'Name:',
-                          backgroundColor: Colors.teal[900],
-                          content: Modal(
-                            child: ModalPartRoomName(
-                              onSubmit: (value) async {
-                                await nk.createMatch(value);
-                                refreshMatches();
-                                Get.back();
-                              },
-                            ),
-                          ));
-                    } on String catch (e) {
-                      Get.defaultDialog(title: e);
-                    }
-                  },
-                )
-              ],
-            ),
-          ),
-          Expanded(
-            child: matches != null
-                ? ListView.builder(
-                    itemCount: matches.length,
-                    itemBuilder: (context, index) => Container(
-                      margin: const EdgeInsets.all(20),
-                      padding: const EdgeInsets.all(20),
-                      decoration: BoxDecoration(
-                        color: Color(0xFF1a1f3a),
-                        borderRadius: BorderRadius.all(
-                          Radius.circular(5),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceAround,
-                        children: [
-                          Container(
-                            width: MediaQuery.of(context).size.width * 0.5,
-                            padding: const EdgeInsets.only(right: 20),
-                            child: SingleChildScrollView(
-                              scrollDirection: Axis.horizontal,
-                              child: Row(
-                                children: [
-                                  Text(
-                                    matches[index].label,
-                                    style: TextStyle(
-                                      fontSize: 20,
-                                    ),
-                                  ),
-                                ],
+                  Center(child: Text('Lobby')),
+                  TextButton(
+                    key: Key('lobby_create'),
+                    child: Text('Create'),
+                    onPressed: () async {
+                      try {
+                        Get.defaultDialog(
+                            title: 'Name:',
+                            backgroundColor: Colors.teal[900],
+                            content: Modal(
+                              child: ModalPartRoomName(
+                                onSubmit: (value) async {
+                                  await nk.createMatch(value);
+                                  refreshMatches();
+                                  Get.back();
+                                },
                               ),
-                            ),
+                            ));
+                      } on String catch (e) {
+                        Get.defaultDialog(title: e);
+                      }
+                    },
+                  )
+                ],
+              ),
+            ),
+            Expanded(
+              child: matches != null
+                  ? ListView.builder(
+                      itemCount: matches.length,
+                      itemBuilder: (context, index) => Container(
+                        margin: const EdgeInsets.all(20),
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          color: Color(0xFF1a1f3a),
+                          borderRadius: BorderRadius.all(
+                            Radius.circular(5),
                           ),
-                          Text('size: ${matches[index].size}'),
-                          TextButton(
-                            key: Key('room_${matches[index].label}'),
-                            child: Text('Join'),
-                            onPressed: () {
-                              try {
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceAround,
+                          children: [
+                            IconButton(
+                              icon: Icon(Icons.highlight_remove),
+                              color: Colors.red[800],
+                              onPressed: () async {
+                                c.delete.value = matches[index].matchId;
                                 nk.joinMatch(matches[index].matchId);
                                 Get.off(GameRoom(matches[index]));
-                              } on StateError catch (e) {
-                                print(e);
-                                Get.defaultDialog(title: e.message);
-                              }
-                            },
-                          )
-                        ],
+                              },
+                            ),
+                            Container(
+                              width: MediaQuery.of(context).size.width * 0.5,
+                              padding: const EdgeInsets.only(right: 20),
+                              child: SingleChildScrollView(
+                                scrollDirection: Axis.horizontal,
+                                child: Row(
+                                  children: [
+                                    Text(
+                                      matches[index].label,
+                                      style: TextStyle(
+                                        fontSize: 20,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                            ),
+                            Text('size: ${matches[index].size}'),
+                            TextButton(
+                              key: Key('room_${matches[index].label}'),
+                              child: Text('Join'),
+                              onPressed: () {
+                                try {
+                                  c.reset();
+                                  nk.joinMatch(matches[index].matchId);
+                                  Get.off(GameRoom(matches[index]));
+                                } on StateError catch (e) {
+                                  print(e);
+                                  Get.defaultDialog(title: e.message);
+                                }
+                              },
+                            )
+                          ],
+                        ),
                       ),
+                    )
+                  : Center(
+                      child: CircularProgressIndicator(),
                     ),
-                  )
-                : Center(
-                    child: CircularProgressIndicator(),
-                  ),
-          ),
-        ],
-      ));
+            ),
+          ],
+        ),
+      );
 }

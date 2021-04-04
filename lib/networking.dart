@@ -140,7 +140,6 @@ class Networking {
     assert(matchId != null);
     var jm = JoinMatch();
     jm.match_id = matchId;
-    // jm.token = session.token;
     socket.send(jm);
   }
 
@@ -158,9 +157,10 @@ class Networking {
     }
   }
 
-  StreamController<MatchPresenceEvent> socketMatchPresence = StreamController();
-  StreamController<ApiMatch> socketMatch = StreamController();
-  StreamController<MatchData> socketMatchData = StreamController();
+  StreamController<MatchPresenceEvent> socketMatchPresence =
+      StreamController.broadcast();
+  StreamController<ApiMatch> socketMatch = StreamController.broadcast();
+  StreamController<MatchData> socketMatchData = StreamController.broadcast();
 
   void onSocketMessage(dynamic msg) {
     print('<------ $msg');

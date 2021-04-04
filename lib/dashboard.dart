@@ -1,18 +1,14 @@
-import 'package:cartas/gameengine.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'gamestate.dart';
 
 class Dashboard extends StatefulWidget {
-  final GameEngine ge;
-  Dashboard(this.ge);
-
   @override
   _DashboardState createState() => _DashboardState();
 }
 
 class _DashboardState extends State<Dashboard> {
-  final GameState c = Get.put(GameState());
+  final GameState c = Get.put(GameState(), permanent: true);
 
   @override
   Widget build(BuildContext context) {
@@ -25,11 +21,11 @@ class _DashboardState extends State<Dashboard> {
             child: Stack(
               children: [
                 ...c.cards,
-                ...widget.ge.renderUI(context),
-                ...widget.ge.playerDeks.values
+                ...c.ge.value.renderUI(context),
+                ...c.ge.value.playerDeks.values
                     .map((deck) => deck.renderUI(context))
                     .toList(),
-                widget.ge.hand.renderUI(context),
+                c.ge.value.hand.renderUI(context),
               ],
             ),
           ),

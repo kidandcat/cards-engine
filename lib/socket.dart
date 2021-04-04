@@ -1,4 +1,5 @@
 import 'dart:convert';
+
 import 'socket_impl_stub.dart'
     if (dart.library.io) 'socket_impl_io.dart'
     if (dart.library.html) 'socket_impl_web.dart';
@@ -62,9 +63,14 @@ class Presence implements Serializable {
 
   factory Presence.fromJson(String source) =>
       Presence.fromMap(json.decode(source));
+
+  @override
+  String toString() {
+    return 'Presence(user_id: $user_id, session_id: $session_id, username: $username, node: $node)';
+  }
 }
 
-enum OpCodeClient { NONE, START_GAME, PLAY_BET, PLAY_CARD }
+enum OpCodeClient { NONE, START_GAME, PLAY_BET, PLAY_CARD, END_MATCH }
 enum OpCodeServer {
   NONE,
   ERROR,
@@ -401,6 +407,28 @@ class CreateMatch {
 
   factory CreateMatch.fromJson(String source) =>
       CreateMatch.fromMap(json.decode(source));
+}
+
+class DeleteMatch {
+  String id;
+  DeleteMatch({this.id});
+
+  Map<String, dynamic> toMap() {
+    return {
+      'id': id,
+    };
+  }
+
+  factory DeleteMatch.fromMap(Map<String, dynamic> map) {
+    if (map == null) return null;
+
+    return DeleteMatch(id: map['id']);
+  }
+
+  String toJson() => json.encode(toMap());
+
+  factory DeleteMatch.fromJson(String source) =>
+      DeleteMatch.fromMap(json.decode(source));
 }
 
 /// Join a multiplayer match.

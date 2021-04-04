@@ -14,12 +14,13 @@ import 'socket.dart';
 enum GamePhase { BET_READY, BET_DONE, PLAY_READY, PLAY_DONE }
 
 class GameEngine {
-  final GameState c = Get.put(GameState());
+  final GameState c = Get.put(GameState(), permanent: true);
   final Networking nk = Networking();
   Deck center;
   GameHand hand;
 
   // current match
+  List<StreamSubscription> listeners = [];
   int roundCardNumber = 0;
   String matchId;
   RxString turnPlayerID = ''.obs;
@@ -43,11 +44,30 @@ class GameEngine {
       });
       return;
     }
+    print('refreshing dashboard');
     c.dashboardKey.value = UniqueKey();
+  }
+
+  void dispose() async {
+    for (var listener in listeners) {
+      await listener.cancel();
+    }
+  }
+
+  void delete(String matchId) {
+    deleteMatch(matchId);
+    dispose();
+    Get.off(Lobby());
   }
 
   GameEngine(BuildContext _context) {
     context = _context;
+    print('GameEngine created, delete: |${c.delete.value}|');
+    if (c.delete.value != '') {
+      print('######## DELETING MATCH!! ########');
+      delete(c.delete.value);
+      return;
+    }
     GameCardV2.precacheImages(context);
     positions = [
       10,
@@ -76,9 +96,7 @@ class GameEngine {
     center.reloadHandlers();
 
     hand.onDragUp = (card) {
-      print('onDragUp $phase');
       if (phase == GamePhase.PLAY_READY) {
-        print('playCard');
         playCard(matchId, hand.indexOf(card));
         cardSelected = card;
       }
@@ -87,11 +105,11 @@ class GameEngine {
     hand.reloadHandlers();
     refreshDashboard();
 
-    nk.socketMatch.stream.listen((event) {
+    listeners.add(nk.socketMatch.stream.listen((event) {
       print('socketMatch received $event');
-    });
+    }));
 
-    nk.socketMatchPresence.stream.listen((event) {
+    listeners.add(nk.socketMatchPresence.stream.listen((event) {
       if (event.joins != null) {
         c.players.addAll(event.joins);
       }
@@ -100,9 +118,9 @@ class GameEngine {
           c.players.removeWhere((p2) => p2.user_id == p.user_id);
         });
       }
-    });
+    }));
 
-    nk.socketMatchData.stream.listen((event) {
+    listeners.add(nk.socketMatchData.stream.listen((event) async {
       // deck positions for players
       switch (OpCodeServer.values[event.opcode]) {
         case OpCodeServer.ERROR:
@@ -123,18 +141,19 @@ class GameEngine {
           roundCardNumber = 0;
           betPlaced = -1;
           if (!gameStarted) {
-            Get.off(Dashboard(this));
+            Get.off(Dashboard());
             matchId = event.matchId;
             gameStarted = true;
           }
           phase = GamePhase.BET_READY;
           for (var c in event.data['hand']) {
             roundCardNumber++;
-            hand.newCard(GameCardV2(
+            var cardForHand = GameCardV2(
               color: Colors.blue,
               suit: c['suit'],
               number: c['number'],
-            ));
+            );
+            hand.moveOnTop(cardForHand);
           }
           var index = 0;
 
@@ -164,9 +183,9 @@ class GameEngine {
               );
               playerDeks[p.user_id].moveOnTop(cardForPlayer);
               cardForPlayer.upward(false);
-              index++;
             }
             playerDeks[p.user_id].points = event.data['points'][p.user_id];
+            index++;
           }
           refreshDashboard();
           // TODO add animation "play your bets!"
@@ -203,12 +222,14 @@ class GameEngine {
           break;
         case OpCodeServer.GAME_FINISHED:
           Get.defaultDialog(
-            title: 'The winner is',
+            title: 'Finished!',
             backgroundColor: Colors.teal[900],
             content: Modal(
               child: ModalPartFinished(
-                name: event.data['winner']['username'],
+                points: event.data['points'],
+                players: c.players,
                 onSubmit: () {
+                  dispose();
                   Get.off(Lobby());
                 },
               ),
@@ -222,7 +243,7 @@ class GameEngine {
             'Server opcode not implemented: ${event.opcode} ${OpCodeServer.values[event.opcode]}',
           );
       }
-    });
+    }));
   }
 
   void startTest() {
@@ -276,7 +297,15 @@ class GameEngine {
       ));
     }
     phase = GamePhase.BET_READY;
-    Get.off(Dashboard(this));
+    Get.off(Dashboard());
+  }
+
+  void deleteMatch(String matchId) {
+    var ms = MatchData(
+      matchId: matchId,
+      opcode: OpCodeClient.END_MATCH.index,
+    );
+    nk.socket.send(ms);
   }
 
   void startMatch(String matchId) {

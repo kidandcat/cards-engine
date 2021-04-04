@@ -4,7 +4,7 @@ import 'gamecardv2.dart';
 import 'gamestate.dart';
 
 class Deck {
-  final GameState c = Get.put(GameState());
+  final GameState c = Get.put(GameState(), permanent: true);
 
   String playerId;
   String name = '';
@@ -55,7 +55,7 @@ class Deck {
     handleDragRight = onDragRight;
   }
 
-  void refresh() async {
+  Future<void> refresh() async {
     var myCards = c.cards.where((card) => card.parent.value == this).toList();
     var index = 0;
     for (var card in myCards) {

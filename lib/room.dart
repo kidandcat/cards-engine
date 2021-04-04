@@ -1,5 +1,5 @@
-import 'package:cartas/dashboard.dart';
 import 'package:cartas/gameengine.dart';
+import 'package:cartas/lobby.dart';
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 
@@ -15,15 +15,14 @@ class GameRoom extends StatefulWidget {
 }
 
 class _GameRoomState extends State<GameRoom> {
-  final GameState c = Get.put(GameState());
-  GameEngine ge;
+  final GameState c = Get.put(GameState(), permanent: true);
 
   @override
   void initState() {
     super.initState();
     WidgetsBinding.instance.addPostFrameCallback((_) {
       // Create GameEngine when context be ready to get Size
-      ge = GameEngine(context);
+      c.ge.value = GameEngine(context);
     });
   }
 
@@ -51,13 +50,26 @@ class _GameRoomState extends State<GameRoom> {
                       TextButton(
                         child: Text('Start'),
                         onPressed: () {
-                          ge.startMatch(widget.game.matchId);
+                          c.ge.value.startMatch(widget.game.matchId);
                         },
                       ),
                       TextButton(
                         child: Text('Test'),
                         onPressed: () {
-                          ge.startTest();
+                          c.ge.value.startTest();
+                        },
+                      ),
+                      TextButton(
+                        child: Text('Leave'),
+                        onPressed: () {
+                          c.ge.value.dispose();
+                          Get.off(Lobby());
+                        },
+                      ),
+                      TextButton(
+                        child: Text('Delete'),
+                        onPressed: () {
+                          c.ge.value.delete(widget.game.matchId);
                         },
                       )
                     ],

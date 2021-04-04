@@ -1,4 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:get/get.dart';
+
+import 'gamestate.dart';
+import 'socket.dart';
 
 class Modal extends StatelessWidget {
   Modal({Key key, this.child}) : super(key: key);
@@ -108,16 +112,20 @@ class _ModalPartRoomNameState extends State<ModalPartRoomName> {
 }
 
 class ModalPartFinished extends StatelessWidget {
-  final String name;
+  final Map<String, dynamic> points;
+  final List<Presence> players;
   final Function() onSubmit;
-  const ModalPartFinished({this.name, this.onSubmit});
+  ModalPartFinished({this.points, this.onSubmit, this.players});
 
   @override
   Widget build(BuildContext context) {
     return Container(
       child: Column(
         children: [
-          Text(name),
+          ...points.keys
+              .map<Widget>((key) => Text(
+                  '${players.firstWhere((p) => p.user_id == key).username}: ${points[key]}'))
+              .toList(),
           Container(
             margin: const EdgeInsets.only(top: 20),
             child: TextButton(
