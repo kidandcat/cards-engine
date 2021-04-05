@@ -4,8 +4,10 @@ import 'package:get/get.dart';
 import 'package:flutter_hooks/flutter_hooks.dart';
 import 'config.dart';
 import 'deck.dart';
+import 'gamestate.dart';
 
 class GameCardV2 extends HookWidget {
+  final GameState c = Get.put(GameState(), permanent: true);
   static const double width = 123;
   static const double height = 200;
   static const double panThreshold = 40;
@@ -135,8 +137,8 @@ class GameCardV2 extends HookWidget {
                     type: MaterialType.card,
                     elevation: elevation.value,
                     child: Container(
-                      width: GameCardV2.width,
-                      height: GameCardV2.height,
+                      width: c.width(),
+                      height: c.height(),
                       child: Stack(
                         children: [
                           Center(
@@ -190,8 +192,8 @@ class GameCardV2 extends HookWidget {
                     type: MaterialType.transparency,
                     elevation: elevation.value,
                     child: Container(
-                      width: GameCardV2.width,
-                      height: GameCardV2.height,
+                      width: c.width(),
+                      height: c.height(),
                       child: Center(
                         child: images['back'],
                       ),

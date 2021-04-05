@@ -43,17 +43,29 @@ class _LobbyState extends State<Lobby> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  IconButton(
-                    icon: Icon(
-                      Icons.refresh,
+                  Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: IconButton(
+                      icon: Icon(Icons.logout),
+                      color: Colors.red,
+                      onPressed: () => nk.logout(),
                     ),
-                    color: Colors.white,
-                    onPressed: refreshMatches,
+                  ),
+                  Padding(
+                    padding: const EdgeInsets.only(right: 10),
+                    child: IconButton(
+                      icon: Icon(Icons.person),
+                      color: Colors.white,
+                      onPressed: () {},
+                    ),
                   ),
                   Center(child: Text('Lobby')),
-                  TextButton(
+                  IconButton(
                     key: Key('lobby_create'),
-                    child: Text('Create'),
+                    icon: Icon(
+                      Icons.add,
+                    ),
+                    color: Colors.white,
                     onPressed: () async {
                       try {
                         Get.defaultDialog(
@@ -72,7 +84,14 @@ class _LobbyState extends State<Lobby> {
                         Get.defaultDialog(title: e);
                       }
                     },
-                  )
+                  ),
+                  IconButton(
+                    icon: Icon(
+                      Icons.refresh,
+                    ),
+                    color: Colors.white,
+                    onPressed: refreshMatches,
+                  ),
                 ],
               ),
             ),

@@ -114,10 +114,10 @@ class Deck {
 
   Widget renderUI(BuildContext context) {
     return Positioned(
-      top: top + GameCardV2.height + 10,
+      top: top + c.height() + 10,
       left: left - 5,
       child: Container(
-        width: GameCardV2.width + 10,
+        width: c.width() + 10,
         child: Column(
           children: [
             Text(name, softWrap: false),

@@ -8,8 +8,8 @@ class Login extends StatefulWidget {
 
 class _LoginState extends State<Login> {
   Networking nk = Networking();
-  String email = 'jairo@email.com';
-  String password = '12341234';
+  String email = '';
+  String password = '';
   String error = '';
 
   void onLoginPress() async {

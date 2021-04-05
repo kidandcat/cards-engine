@@ -5,6 +5,7 @@ import 'package:cartas/swagger/apigrpc.swagger.dart';
 import 'package:chopper/chopper.dart';
 import 'package:get_storage/get_storage.dart';
 import 'lobby.dart';
+import 'login.dart';
 import 'socket.dart';
 
 class Networking {
@@ -15,7 +16,7 @@ class Networking {
   }
   Networking._internal() {
     nakama = Apigrpc.create(getClient());
-
+    box = GetStorage();
     refreshSession();
   }
   // Singleton end
@@ -24,6 +25,7 @@ class Networking {
   ApiSession session;
   ApiAccount userdata;
   Socket socket;
+  GetStorage box;
 
   Future<void> refreshSession() async {
     await refreshToken();
@@ -36,7 +38,6 @@ class Networking {
   }
 
   Future<void> refreshToken() async {
-    var box = GetStorage();
     var token = box.read<String>('refreshToken');
     if (token != null) {
       // token refreshing must be done with Authorization Basic
@@ -50,6 +51,7 @@ class Networking {
         nakama.client = getClient(); // Refresh client to use session
       } else {
         print('Session not refreshed: ${response.error}');
+        GetX.Get.off(Login());
       }
     }
   }
@@ -144,8 +146,12 @@ class Networking {
   }
 
   Future<void> saveRefreshToken(String token) async {
-    var box = GetStorage();
     await box.write('refreshToken', session.refreshToken);
+  }
+
+  Future<void> logout() async {
+    await box.remove('refreshToken');
+    refreshToken();
   }
 
   Future<void> getUserData() async {

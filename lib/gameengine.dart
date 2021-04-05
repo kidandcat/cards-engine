@@ -62,6 +62,8 @@ class GameEngine {
 
   GameEngine(BuildContext _context) {
     context = _context;
+    c.height.value = context.size.height / 5;
+    c.width.value = c.height.value * 0.618;
     print('GameEngine created, delete: |${c.delete.value}|');
     if (c.delete.value != '') {
       print('######## DELETING MATCH!! ########');
@@ -72,20 +74,20 @@ class GameEngine {
     positions = [
       10,
       context.size.width / 2,
-      context.size.width - GameCardV2.width - 10
+      context.size.width - c.width() - 10
     ];
     center = Deck(
       name: 'Table',
       spacingY: 0.2,
       spacingX: 0.2,
-      left: context.size.width / 2 - GameCardV2.width / 2,
-      top: context.size.height / 2 - GameCardV2.height / 2,
+      left: context.size.width / 2 - c.width() / 2,
+      top: context.size.height / 2 - c.height() / 2,
       refreshDashboard: refreshDashboard,
     );
     hand = GameHand(
       name: nk.userdata.user.username,
-      left: context.size.width / 2 - GameCardV2.width / 2,
-      top: context.size.height - GameCardV2.height - 10,
+      left: context.size.width / 2 - c.width() / 2,
+      top: context.size.height - c.height() - 10,
       refreshDashboard: refreshDashboard,
     );
 
@@ -251,14 +253,14 @@ class GameEngine {
       name: 'Table',
       spacingY: 5,
       spacingX: 5,
-      left: context.size.width / 2 - GameCardV2.width / 2,
-      top: context.size.height / 2 - GameCardV2.height / 2,
+      left: context.size.width / 2 - c.width() / 2,
+      top: context.size.height / 2 - c.height() / 2,
       refreshDashboard: refreshDashboard,
     );
     hand = GameHand(
       name: 'Hand',
-      left: context.size.width / 2 - GameCardV2.width / 2,
-      top: context.size.height - GameCardV2.height - 10,
+      left: context.size.width / 2 - c.width() / 2,
+      top: context.size.height - c.height() - 10,
       refreshDashboard: refreshDashboard,
     );
 

@@ -10,6 +10,8 @@ class GameState extends GetxController {
   RxList<Presence> players = <Presence>[].obs;
   Rx<UniqueKey> dashboardKey = UniqueKey().obs;
   RxString delete = ''.obs;
+  RxDouble height = 100.0.obs;
+  RxDouble width = (100 * 0.618).obs;
 
   void reset() {
     cards.clear();
