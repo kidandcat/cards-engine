@@ -107,8 +107,13 @@ class Deck {
     move(card, 0);
   }
 
-  void newCard(GameCardV2 card) {
+  void newCard(GameCardV2 card) async {
     c.cards.add(card);
+    card.top.value = -500;
+    card.left.value = -500;
+    await refresh();
+    refreshDashboard();
+    await Future.delayed(Duration(milliseconds: 500));
     move(card, numberOfCards);
   }
 

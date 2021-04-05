@@ -32,7 +32,12 @@ class _GameRoomState extends State<GameRoom> {
           child: Obx(
             () => Column(
               children: [
-                Text('${widget.game.label} ${widget.game.tickRate}'),
+                Text(
+                  '${widget.game.label}',
+                  style: TextStyle(
+                    fontSize: 30,
+                  ),
+                ),
                 Expanded(
                   child: ListView.builder(
                     itemCount: c.players.length,
@@ -49,6 +54,10 @@ class _GameRoomState extends State<GameRoom> {
                     children: [
                       TextButton(
                         child: Text('Start'),
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.resolveWith(
+                              (state) => Colors.green),
+                        ),
                         onPressed: () {
                           c.ge.value.startMatch(widget.game.matchId);
                         },
@@ -68,6 +77,10 @@ class _GameRoomState extends State<GameRoom> {
                       ),
                       TextButton(
                         child: Text('Delete'),
+                        style: ButtonStyle(
+                          backgroundColor: MaterialStateProperty.resolveWith(
+                              (state) => Colors.red),
+                        ),
                         onPressed: () {
                           c.ge.value.delete(widget.game.matchId);
                         },

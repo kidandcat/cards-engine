@@ -141,6 +141,7 @@ class GameEngine {
           break;
         case OpCodeServer.BET_PHASE:
           roundCardNumber = 0;
+          turnPlayerID.value = event.data['turn'];
           betPlaced = -1;
           if (!gameStarted) {
             Get.off(Dashboard());
@@ -272,7 +273,11 @@ class GameEngine {
       center.moveOnTop(card);
     };
     hand.onDragDown = (card) {
-      center.moveOnBottom(card);
+      hand.newCard(GameCardV2(
+        color: Colors.blue,
+        suit: 2,
+        number: 1,
+      ));
     };
     center.onDragUp = (card) {
       hand.moveOnBottom(card);
@@ -348,15 +353,13 @@ class GameEngine {
             Row(
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
-                Text(
-                  phase == GamePhase.BET_READY
-                      ? 'Place your bet!'
-                      : turnPlayerID.value == nk.userdata.user.id
-                          ? 'Play your card!'
-                          : 'Waiting others',
-                  style: TextStyle(
-                    fontSize: 30,
-                    fontWeight: FontWeight.bold,
+                Obx(
+                  () => Text(
+                    'Turn: ${playerDeks.containsKey(turnPlayerID.value) ? playerDeks[turnPlayerID.value].name : 'Your turn!'}',
+                    style: TextStyle(
+                      fontSize: 30,
+                      fontWeight: FontWeight.bold,
+                    ),
                   ),
                 ),
               ],

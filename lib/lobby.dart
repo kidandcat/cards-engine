@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:cartas/modals.dart';
 import 'package:cartas/room.dart';
 import 'package:flutter/material.dart';
@@ -43,12 +45,15 @@ class _LobbyState extends State<Lobby> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
-                  Padding(
-                    padding: const EdgeInsets.only(right: 10),
-                    child: IconButton(
-                      icon: Icon(Icons.logout),
-                      color: Colors.red,
-                      onPressed: () => nk.logout(),
+                  Transform.rotate(
+                    angle: 180 * pi / 180,
+                    child: Padding(
+                      padding: const EdgeInsets.only(right: 10),
+                      child: IconButton(
+                        icon: Icon(Icons.logout),
+                        color: Colors.red,
+                        onPressed: () => nk.logout(),
+                      ),
                     ),
                   ),
                   Padding(
@@ -59,7 +64,14 @@ class _LobbyState extends State<Lobby> {
                       onPressed: () {},
                     ),
                   ),
-                  Center(child: Text('Lobby')),
+                  Center(
+                    child: Text(
+                      'Lobby',
+                      style: TextStyle(
+                        fontSize: 30,
+                      ),
+                    ),
+                  ),
                   IconButton(
                     key: Key('lobby_create'),
                     icon: Icon(
