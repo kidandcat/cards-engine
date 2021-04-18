@@ -1,6 +1,8 @@
 import 'package:cartas/networking.dart';
 import 'package:flutter/material.dart';
 
+import 'components/Input.dart';
+
 class Login extends StatefulWidget {
   @override
   _LoginState createState() => _LoginState();
@@ -33,21 +35,17 @@ class _LoginState extends State<Login> {
                 width: MediaQuery.of(context).size.width * 0.8,
                 child: Column(
                   children: [
-                    TextField(
+                    CustomImput(
                       key: Key('email'),
-                      autofillHints: ['email'],
                       onChanged: (value) => email = value,
-                      decoration: InputDecoration(
-                        hintText: 'Email',
-                      ),
+                      title: 'Email',
+                      description: 'Enter your email',
                     ),
-                    TextField(
+                    CustomImput(
                       key: Key('password'),
                       obscureText: true,
                       onChanged: (value) => password = value,
-                      decoration: InputDecoration(
-                        hintText: 'Password',
-                      ),
+                      title: 'Password',
                     ),
                     Padding(
                       padding: const EdgeInsets.only(top: 12),

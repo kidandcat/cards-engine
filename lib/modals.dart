@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'components/Input.dart';
 import 'socket.dart';
 
 class Modal extends StatelessWidget {
@@ -9,7 +10,7 @@ class Modal extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: Colors.teal[900],
+      padding: const EdgeInsets.only(left: 30, right: 30),
       child: Center(
         child: child,
       ),
@@ -34,12 +35,12 @@ class _ModalPartBetState extends State<ModalPartBet> {
   Widget build(BuildContext context) {
     return Container(
       height: MediaQuery.of(context).size.height * 0.7,
-      width: MediaQuery.of(context).size.width * 0.7,
+      width: MediaQuery.of(context).size.width * 0.8,
       child: Column(
         children: [
           SingleChildScrollView(
             child: Container(
-              height: MediaQuery.of(context).size.height * 0.7 - 40,
+              height: MediaQuery.of(context).size.height * 0.6 - 40,
               child: ListView.builder(
                 shrinkWrap: true,
                 itemCount: widget.maxBet,
@@ -86,8 +87,10 @@ class _ModalPartRoomNameState extends State<ModalPartRoomName> {
     return Container(
       child: Column(
         children: [
-          TextField(
+          CustomImput(
             key: Key('room_name'),
+            title: 'Name',
+            description: 'Choose a name for your room',
             onChanged: (val) {
               setState(() {
                 name = val;

@@ -16,23 +16,23 @@ class GameCardV2 extends HookWidget {
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
     'empty': Image.asset('assets/00 Plantilla.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '0': Image.asset('assets/The Arrow.jpg',
+    '0': Image.asset('assets/white.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '1': Image.asset('assets/The Arrow.jpg',
+    '1': Image.asset('assets/red.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '2': Image.asset('assets/The Big.jpg',
+    '2': Image.asset('assets/blue.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '3': Image.asset('assets/The Bubbles.jpg',
+    '3': Image.asset('assets/yellow.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '4': Image.asset('assets/The Change.jpg',
+    '4': Image.asset('assets/black.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '5': Image.asset('assets/The Change.jpg',
+    '5': Image.asset('assets/mermaid.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '6': Image.asset('assets/The Change.jpg',
+    '6': Image.asset('assets/pirate.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '7': Image.asset('assets/The Change.jpg',
+    '7': Image.asset('assets/scary.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
-    '8': Image.asset('assets/The Change.jpg',
+    '8': Image.asset('assets/king.jpg',
         height: double.infinity, width: double.infinity, fit: BoxFit.fill),
   };
 
@@ -59,6 +59,7 @@ class GameCardV2 extends HookWidget {
   RxBool isMoving = false.obs;
   RxDouble top = 0.0.obs;
   RxDouble left = 0.0.obs;
+  RxDouble rotation = 0.0.obs;
   bool isUpward = true;
   List<bool> upwardQueue = <bool>[];
 
@@ -132,73 +133,77 @@ class GameCardV2 extends HookWidget {
             transform: Matrix4.identity()
               ..setEntry(3, 2, 0.002)
               ..rotateY(pi * animationValue),
-            child: animationValue <= 0.5
-                ? Material(
-                    type: MaterialType.card,
-                    elevation: elevation.value,
-                    child: Container(
-                      width: c.width(),
-                      height: c.height(),
-                      child: Stack(
-                        children: [
-                          Center(
-                            child: images.containsKey('$suit')
-                                ? images['$suit']
-                                : images['empty'],
-                          ),
-                          Positioned(
-                            top: 10,
-                            left: 10,
-                            child: number.value == 0
-                                ? Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: Colors.teal[900],
+            child: Transform(
+              transform: Matrix4.identity()
+                ..rotateZ((rotation.value * pi) / 180),
+              child: animationValue <= 0.5
+                  ? Material(
+                      type: MaterialType.card,
+                      elevation: elevation.value,
+                      child: Container(
+                        width: c.width(),
+                        height: c.height(),
+                        child: Stack(
+                          children: [
+                            Center(
+                              child: images.containsKey('$suit')
+                                  ? images['$suit']
+                                  : images['empty'],
+                            ),
+                            Positioned(
+                              top: 10,
+                              left: 10,
+                              child: number.value == 0
+                                  ? Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Colors.teal[900],
+                                      ),
+                                      padding: const EdgeInsets.all(5),
+                                      child: Builder(
+                                        builder: (context) {
+                                          switch (suit.value) {
+                                            case 0:
+                                              return Text('WHITE FLAG');
+                                            case 5:
+                                              return Text('MERMAID');
+                                            case 6:
+                                              return Text('PIRATE');
+                                            case 7:
+                                              return Text('SCARY_PIGGY');
+                                            case 8:
+                                              return Text('PIG_KING');
+                                            default:
+                                              return Text('Unknown');
+                                          }
+                                        },
+                                      ),
+                                    )
+                                  : Container(
+                                      decoration: BoxDecoration(
+                                        borderRadius: BorderRadius.circular(10),
+                                        color: Colors.teal[900],
+                                      ),
+                                      padding: const EdgeInsets.all(5),
+                                      child: Text('$number/$suit'),
                                     ),
-                                    padding: const EdgeInsets.all(5),
-                                    child: Builder(
-                                      builder: (context) {
-                                        switch (suit.value) {
-                                          case 0:
-                                            return Text('WHITE FLAG');
-                                          case 5:
-                                            return Text('MERMAID');
-                                          case 6:
-                                            return Text('PIRATE');
-                                          case 7:
-                                            return Text('SCARY_PIGGY');
-                                          case 8:
-                                            return Text('PIG_KING');
-                                          default:
-                                            return Text('Unknown');
-                                        }
-                                      },
-                                    ),
-                                  )
-                                : Container(
-                                    decoration: BoxDecoration(
-                                      borderRadius: BorderRadius.circular(10),
-                                      color: Colors.teal[900],
-                                    ),
-                                    padding: const EdgeInsets.all(5),
-                                    child: Text('$number/$suit'),
-                                  ),
-                          ),
-                        ],
+                            ),
+                          ],
+                        ),
+                      ),
+                    )
+                  : Material(
+                      type: MaterialType.transparency,
+                      elevation: elevation.value,
+                      child: Container(
+                        width: c.width(),
+                        height: c.height(),
+                        child: Center(
+                          child: images['back'],
+                        ),
                       ),
                     ),
-                  )
-                : Material(
-                    type: MaterialType.transparency,
-                    elevation: elevation.value,
-                    child: Container(
-                      width: c.width(),
-                      height: c.height(),
-                      child: Center(
-                        child: images['back'],
-                      ),
-                    ),
-                  ),
+            ),
           ),
         ),
       ),

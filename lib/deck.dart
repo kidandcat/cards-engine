@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:flutter/material.dart';
 import 'package:get/get.dart';
 import 'gamecardv2.dart';
@@ -9,7 +11,11 @@ class Deck {
   String playerId;
   String name = '';
   int points = 0;
-
+  List<double> positionXRandomValues = [];
+  List<double> positionYRandomValues = [];
+  List<double> rotationRandomValues = [];
+  double posRandomness;
+  double rotRandomness;
   Function refreshDashboard;
 
   // position
@@ -32,18 +38,45 @@ class Deck {
   void Function(GameCardV2) handleDragLeft;
   double spacingX;
   double spacingY;
+  double rotation;
   int numberOfCards = 0;
 
   Deck({
     this.playerId,
     this.name,
+    this.rotRandomness: 0,
+    this.rotation: 0,
+    this.posRandomness: 0,
     this.spacingX: 3,
     this.spacingY: 3,
     this.left: 0,
     this.top: 0,
     this.refreshDashboard,
   }) {
+    generateRandomValues();
     reloadHandlers();
+  }
+
+  void generateRandomValues() {
+    for (var i = 0; i < 100; i++) {
+      positionXRandomValues.add(randomizePosition(left));
+      positionYRandomValues.add(randomizePosition(top));
+      rotationRandomValues.add(randomizeRotation(rotation));
+    }
+  }
+
+  double randomizeRotation(double num) {
+    if (rotRandomness == 0) return num;
+    return (num - rotRandomness) +
+        Random().nextInt(
+            ((num + rotRandomness + 1) - (num - rotRandomness)).toInt());
+  }
+
+  double randomizePosition(double num) {
+    if (posRandomness == 0) return num;
+    return (num - posRandomness) +
+        Random().nextInt(
+            ((num + posRandomness + 1) - (num - posRandomness)).toInt());
   }
 
   void reloadHandlers() {
@@ -59,8 +92,9 @@ class Deck {
     var myCards = c.cards.where((card) => card.parent.value == this).toList();
     var index = 0;
     for (var card in myCards) {
-      card.top.value = top + spacingY * index;
-      card.left.value = left + spacingX * index;
+      card.top.value = positionYRandomValues[index] + spacingY * index;
+      card.left.value = positionXRandomValues[index] + spacingX * index;
+      card.rotation.value = rotationRandomValues[index];
       card.elevation.value = index.toDouble();
       index++;
     }
@@ -85,8 +119,6 @@ class Deck {
     }
     oldParent = card.parent.value;
     card.parent.value = this;
-    card.top.value = top + spacingY * index;
-    card.left.value = left + spacingX * index;
     numberOfCards++;
     refresh();
     if (oldParent != null) oldParent.refresh();

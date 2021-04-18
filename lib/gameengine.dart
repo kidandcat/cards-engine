@@ -7,6 +7,7 @@ import 'deck.dart';
 import 'gamecardv2.dart';
 import 'gamestate.dart';
 import 'lobby.dart';
+import 'main.dart';
 import 'modals.dart';
 import 'networking.dart';
 import 'socket.dart';
@@ -44,7 +45,6 @@ class GameEngine {
       });
       return;
     }
-    print('refreshing dashboard');
     c.dashboardKey.value = UniqueKey();
   }
 
@@ -80,6 +80,9 @@ class GameEngine {
       name: 'Table',
       spacingY: 0.2,
       spacingX: 0.2,
+      posRandomness: 50,
+      rotRandomness: 30,
+      rotation: 10,
       left: context.size.width / 2 - c.width() / 2,
       top: context.size.height / 2 - c.height() / 2,
       refreshDashboard: refreshDashboard,
@@ -91,9 +94,7 @@ class GameEngine {
       refreshDashboard: refreshDashboard,
     );
 
-    center.onTap = (card) {
-      card.upward(!card.isUpward);
-    };
+    center.onTap = (card) {};
 
     center.reloadHandlers();
 
@@ -226,7 +227,7 @@ class GameEngine {
         case OpCodeServer.GAME_FINISHED:
           Get.defaultDialog(
             title: 'Finished!',
-            backgroundColor: Colors.teal[900],
+            backgroundColor: brandColor,
             content: Modal(
               child: ModalPartFinished(
                 points: event.data['points'],
@@ -254,6 +255,9 @@ class GameEngine {
       name: 'Table',
       spacingY: 5,
       spacingX: 5,
+      posRandomness: 50,
+      rotRandomness: 30,
+      rotation: 10,
       left: context.size.width / 2 - c.width() / 2,
       top: context.size.height / 2 - c.height() / 2,
       refreshDashboard: refreshDashboard,
@@ -354,11 +358,15 @@ class GameEngine {
               mainAxisAlignment: MainAxisAlignment.spaceEvenly,
               children: [
                 Obx(
-                  () => Text(
-                    'Turn: ${playerDeks.containsKey(turnPlayerID.value) ? playerDeks[turnPlayerID.value].name : 'Your turn!'}',
-                    style: TextStyle(
-                      fontSize: 30,
-                      fontWeight: FontWeight.bold,
+                  () => Container(
+                    width: MediaQuery.of(context).size.width * 0.9,
+                    child: Text(
+                      'Turn: ${playerDeks.containsKey(turnPlayerID.value) ? playerDeks[turnPlayerID.value].name : 'Your turn!'}',
+                      overflow: TextOverflow.fade,
+                      style: TextStyle(
+                        fontSize: 30,
+                        fontWeight: FontWeight.bold,
+                      ),
                     ),
                   ),
                 ),
@@ -374,7 +382,7 @@ class GameEngine {
             onTap: () {
               Get.defaultDialog(
                 title: 'Bet:',
-                backgroundColor: Colors.teal[900],
+                backgroundColor: brandColor,
                 content: Modal(
                   child: ModalPartBet(
                     maxBet: roundCardNumber + 1,

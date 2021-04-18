@@ -18,6 +18,10 @@ class GameState extends GetxController {
     players.clear();
     dashboardKey.value = UniqueKey();
     delete.value = '';
-    if (ge.value != null) ge.value.dispose();
+    if (ge.value != null) {
+      ge.value.dispose();
+      ge.value.refreshDashboard();
+    }
+    print('- - - - STATE CLEANED - - - -');
   }
 }

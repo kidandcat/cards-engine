@@ -1,5 +1,6 @@
 import 'dart:math';
 
+import 'package:cartas/main.dart';
 import 'package:cartas/modals.dart';
 import 'package:cartas/room.dart';
 import 'package:flutter/material.dart';
@@ -82,7 +83,7 @@ class _LobbyState extends State<Lobby> {
                       try {
                         Get.defaultDialog(
                             title: 'Name:',
-                            backgroundColor: Colors.teal[900],
+                            backgroundColor: brandColor,
                             content: Modal(
                               child: ModalPartRoomName(
                                 onSubmit: (value) async {
@@ -133,7 +134,6 @@ class _LobbyState extends State<Lobby> {
                               },
                             ),
                             Container(
-                              width: MediaQuery.of(context).size.width * 0.5,
                               padding: const EdgeInsets.only(right: 20),
                               child: SingleChildScrollView(
                                 scrollDirection: Axis.horizontal,
@@ -149,7 +149,8 @@ class _LobbyState extends State<Lobby> {
                                 ),
                               ),
                             ),
-                            Text('size: ${matches[index].size}'),
+                            Text(
+                                'players: ${matches[index].size != null ? matches[index].size : 0}'),
                             TextButton(
                               key: Key('room_${matches[index].label}'),
                               child: Text('Join'),
